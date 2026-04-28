@@ -1,12 +1,12 @@
 ---
 name: Tarea de desarrollo frontend
-about: Plantilla estandar para las tareas de cada Sprint
+about: Plantilla estándar para las tareas de cada Sprint
 title: "[Sprint X] - "
 labels: "frontend"
 ---
 
 ## Contexto (Spec-driven)
-- Enlace al documento de especificaciones del Sprint:
+- Enlace al documento de especificaciones del Sprint: [spec_sprint1.md](https://github.com/juanmariabravo/tfg-social-connect-frontend/blob/main/spec_sprint1.md)
 - Objetivo del requisito (descripción breve):
 - Componentes/Vistas afectados:
 
@@ -27,4 +27,4 @@ labels: "frontend"
 - [ ] Se ha guardado captura de pantalla (para la documentación).
 
 ## Referencias
-- Link al tablero Kanban:
+- Link al tablero Kanban: https://github.com/users/juanmariabravo/projects/2
