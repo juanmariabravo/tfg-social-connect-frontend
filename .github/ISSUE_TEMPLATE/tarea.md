@@ -1,8 +1,8 @@
 ---
-name: Tarea de desarrollo
+name: Tarea de desarrollo frontend
 about: Plantilla estandar para las tareas de cada Sprint
 title: "[Sprint X] - "
-labels: ""
+labels: "frontend"
 ---
 
 ## Contexto (Spec-driven)
