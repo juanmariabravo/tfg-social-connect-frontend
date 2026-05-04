@@ -31,6 +31,9 @@ Preparar el entorno de desarrollo del cliente, configurar la estructura de compo
     3. Verificar que el componente muestra "Online" al recibir respuesta 200.
 
 ## 6. Definición de Hecho (Definition of Done)
-- [ ] Entorno React configurado y compilando correctamente.
-- [ ] El componente de prueba recibe el JSON del backend correctamente.
-- [ ] El código está subido a la rama `feature/` y mergeado a `main`.
+- [x] Entorno React configurado y compilando correctamente.
+- [x] El componente de prueba recibe el JSON del backend correctamente.
+- [x] El código está subido a la rama `feature/` y mergeado a `main`.
+
+## Estado del Sprint
+Todas las tareas han sido completadas con éxito a fecha de cierre del sprint (04/05/2026). El frontend está listo para comenzar a desarrollar las funcionalidades específicas de la aplicación en el próximo sprint.
