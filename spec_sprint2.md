@@ -4,6 +4,24 @@
 
 ---
 
+## 0. Fase de Diseño (Mockups)
+**Herramienta:** Figma / Lovable
+**Objetivo:** Crear wireframes y mockups antes de implementar
+
+### 0.1 Mockups a crear
+- [ ] Login (/login) - Wireframe mobile + desktop
+- [ ] Registro (/register) - Wireframe mobile + desktop
+- [ ] Perfil (/profile) - Wireframe mobile + desktop
+- [ ] Editar Perfil (/profile/edit) - Wireframe mobile + desktop
+- [ ] Onboarding (/onboarding) - Wireframe de los pasos 1-4
+
+### 0.2 Entregables
+- [ ] Links a prototipos en Figma/Lovable
+- [ ] Capturas para documentación
+- [ ] Checklist de componentes por vista
+
+---
+
 ## 1. Alcance del Sprint
 El objetivo principal es implementar las vistas de login, registro y perfil de usuario, conectándolas con los endpoints del backend del Sprint 2.
 
@@ -79,6 +97,11 @@ El objetivo principal es implementar las vistas de login, registro y perfil de u
   4. Verificar que la edición de perfil guarda los cambios.
 
 ## 7. Definición de Hecho (Definition of Done)
+### Fase Diseño
+- [ ] Los mockups de todas las vistas están creados en Figma/Lovable.
+- [ ] Se han validado los wireframes antes de implementar.
+
+### Fase Implementación
 - [ ] La vista de Login está operativa y conecta con el backend.
 - [ ] La vista de Registro está operativa y conecta con el backend.
 - [ ] La vista de Perfil muestra los datos correctamente.
