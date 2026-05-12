@@ -1,4 +1,3 @@
-import React from 'react';
 import StatusChecker from './components/StatusChecker';
 
 function App() {
@@ -10,7 +9,7 @@ function App() {
         <StatusChecker />
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
