@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -8,12 +9,24 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      setUser({ token });
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+    const loadUser = async () => {
+      const token = localStorage.getItem('accessToken');
+
+      if (token) {
+        try {
+          const response = await api.get('/auth/me');
+          setUser(response.data);
+          setIsAuthenticated(true);
+        } catch (err) {
+          console.error('Error al cargar usuario:', err.response?.status, err.message);
+          logout();
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    loadUser();
   }, []);
 
   const login = (token, userData) => {
