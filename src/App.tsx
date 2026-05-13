@@ -5,7 +5,12 @@ import RegisterPage from './pages/Register';
 import ProfilePage from './pages/Profile';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Cargando...</div>;
+  }
+  
   if (!isAuthenticated) return <Navigate to="/" replace />;
   return children;
 }
