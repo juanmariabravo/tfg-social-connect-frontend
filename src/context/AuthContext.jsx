@@ -8,6 +8,12 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const logout = () => {
+    localStorage.removeItem('accessToken');
+    setUser(null);
+    setIsAuthenticated(false);
+  };
+
   useEffect(() => {
     const loadUser = async () => {
       const token = localStorage.getItem('accessToken');
@@ -33,12 +39,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem('accessToken', token);
     setUser(userData);
     setIsAuthenticated(true);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('accessToken');
-    setUser(null);
-    setIsAuthenticated(false);
   };
 
   return (
