@@ -1,0 +1,20 @@
+export const INTERESTS = [
+  "🎵 Música", "📺 Series", "🏃 Deporte", "🍽️ Comer", "🌅 Atardecer",
+  "🎮 Juegos", "📚 Libros", "✈️ Viajes", "🐕 Mascotas", "💻 Tecnología",
+  "🌿 Naturaleza", "🌊 Playa", "🏔️ Montaña", "🧘 Meditación", "☕ Café",
+  "⛺ Camping", "🎨 Arte", "📸 Fotografía", "🎬 Cine", "🎤 Conciertos",
+  "🧩 Puzles", "🧶 Manualidades", "🍻 Fiesta", "🎭 Teatro", "💃 Baile",
+  "🍷 Vino", "🎡 Atracciones", "🎓 Estudiar", "🌱 Jardinería", "🍳 Cocinar",
+];
+
+export const QUESTIONS = [
+  { trait: "Extroversión", text: "Disfruto conocer gente nueva en eventos sociales." },
+  { trait: "Apertura", text: "Me gusta probar experiencias y comidas nuevas." },
+  { trait: "Responsabilidad", text: "Suelo planificar mis días con detalle." },
+  { trait: "Amabilidad", text: "Confío fácilmente en los demás." },
+  { trait: "Estabilidad", text: "Mantengo la calma bajo presión." },
+  { trait: "Creatividad", text: "Encuentro inspiración en cosas cotidianas." },
+  { trait: "Aventura", text: "Prefiero viajar a lugares desconocidos." },
+];
+
+export const EMOJIS = ["⭐", "💫", "🌟", "✨", "💜", "🔵", "🟣", "🧡", "💚", "🤍"];
