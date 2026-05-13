@@ -5,6 +5,7 @@ import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/textarea';
 import { PersonalityChart } from '../components/PersonalityChart';
 import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/avatar';
+import PhotoManagementModal from '../components/PhotoUploadModal';
 import { EMOJIS, INTERESTS } from '../lib/data';
 import { Camera, Sparkles, Pencil, X, Check, Plus, Loader2 } from 'lucide-react';
 import { getGravatarUrl } from '../lib/gravatar';
@@ -21,7 +22,6 @@ export default function ProfilePage() {
   const [realPhoto, setRealPhoto] = useState<string>('');
   const [virtualPhoto, setVirtualPhoto] = useState<string>('');
   const [name, setName] = useState('');
-  const [age, setAge] = useState('');
   const [location, setLocation] = useState('');
   const [bio, setBio] = useState('');
   const [editing, setEditing] = useState(false);
@@ -29,6 +29,7 @@ export default function ProfilePage() {
   const [personality, setPersonality] = useState<any>(null);
   const [adding, setAdding] = useState(false);
   const [customInterest, setCustomInterest] = useState('');
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -51,7 +52,6 @@ export default function ProfilePage() {
           setVirtualPhoto(data.avatar || '');
         }
       } catch (err) {
-        console.error('Error fetching profile:', err);
         setError('Error al cargar el perfil');
       } finally {
         setLoading(false);
@@ -93,7 +93,6 @@ export default function ProfilePage() {
       });
       return true;
     } catch (err) {
-      console.error('Error updating profile:', err);
       setError('Error al guardar los cambios');
       return false;
     } finally {
@@ -146,6 +145,50 @@ export default function ProfilePage() {
     const success = await updateProfile();
     if (success) {
       setEditing(false);
+    }
+  };
+
+  const handlePhotoSave = async (realPhotoUrl: string | null, virtualPhotoUrl: string | null) => {
+    if (!user?._id) {
+      setError('No se encontró el usuario');
+      return;
+    }
+    setSaving(true);
+    setError('');
+    try {
+      const updateData: Record<string, string> = {};
+      if (realPhotoUrl) updateData.photo = realPhotoUrl;
+      if (virtualPhotoUrl) updateData.avatar = virtualPhotoUrl;
+
+      if (Object.keys(updateData).length === 0) return;
+
+      await api.put(`/profiles/${user._id}`, updateData);
+
+      if (realPhotoUrl) setRealPhoto(realPhotoUrl);
+      if (virtualPhotoUrl) setVirtualPhoto(virtualPhotoUrl);
+      setPhotoModalOpen(false);
+    } catch (err) {
+      let errorMessage = 'Error al guardar las fotos';
+
+      if (err instanceof Error) {
+        if ('response' in err) {
+          const status = (err as any).response?.status;
+          if (status === 413) {
+            errorMessage = 'Las imágenes son demasiado grandes. Máximo 5MB por imagen.';
+          } else if (status >= 500) {
+            errorMessage = 'Error en el servidor. Intenta más tarde.';
+          } else {
+            errorMessage = (err as any).response?.data?.message || err.message;
+          }
+        } else {
+          errorMessage = err.message;
+        }
+      }
+
+      setError(errorMessage);
+      setPhotoModalOpen(false);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -209,16 +252,13 @@ export default function ProfilePage() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-red-500">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 max-w-2xl mx-auto p-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
       <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-lg">
         <div className="h-32" style={{ background: activeColor }} />
         <div className="px-6 pb-6 -mt-12">
@@ -265,34 +305,43 @@ export default function ProfilePage() {
                 </button>
               </div>
             </div>
-            <Button
-              variant={editing ? 'hero' : 'outline'}
-              size="sm"
-              className="h-10 rounded-lg"
-              disabled={saving || (editing && !validateProfile())}
-              onClick={
-                editing
-                  ? handleSave
-                  : () => {
-                      setEditing(true);
-                      setFieldErrors({});
-                      setError('');
-                    }
-              }
-            >
-              {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : editing ? (
-                <>
-                  <Check className="h-4 w-4" /> Guardar
-                </>
-              ) : (
-                <>
-                  <Pencil className="h-4 w-4" /> Editar perfil
-                </>
-              )}
-            </Button>
+
+            <div className="flex flex-col gap-3">
+              <Button
+                variant={editing ? 'hero' : 'outline'}
+                size="sm"
+                className="h-10 rounded-lg"
+                disabled={saving || (editing && !validateProfile())}
+                onClick={
+                  editing
+                    ? handleSave
+                    : () => {
+                        setEditing(true);
+                        setFieldErrors({});
+                        setError('');
+                      }
+                }
+              >
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : editing ? (
+                  <>
+                    <Check className="h-4 w-4" /> Guardar
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="h-4 w-4" /> Editar perfil
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
+          <button
+            onClick={() => setPhotoModalOpen(true)}
+            className="mt-2 text-sm text-[#FF6B6B] hover:text-[#FF6B6B]/80 hover:underline font-medium transition-colors"
+          >
+            Cambiar foto de perfil
+          </button>
 
           <div className="mt-5">
             {editing ? (
@@ -351,7 +400,7 @@ export default function ProfilePage() {
             ) : (
               <>
                 <h1 className="text-2xl font-bold">
-                  {name || user?.name || 'Usuario'}, {age || getAgeFromDateOfBirth()}
+                  {name || user?.name || 'Usuario'}, {getAgeFromDateOfBirth()}
                 </h1>
                 {location && <p className="text-sm text-gray-500">📍 {location}</p>}
                 {bio && <p className="mt-3 text-sm leading-relaxed">{bio}</p>}
@@ -433,6 +482,16 @@ export default function ProfilePage() {
           )}
         </div>
       </section>
+
+      <PhotoManagementModal
+        isOpen={photoModalOpen}
+        onClose={() => {
+          setPhotoModalOpen(false);
+        }}
+        onSave={handlePhotoSave}
+        currentRealPhoto={realPhoto}
+        currentVirtualPhoto={virtualPhoto}
+      />
     </div>
   );
 }
