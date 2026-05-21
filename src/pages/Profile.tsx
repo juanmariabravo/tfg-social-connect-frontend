@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/textarea';
@@ -13,6 +14,7 @@ import api from '../services/api';
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -41,6 +43,12 @@ export default function ProfilePage() {
       try {
         const { data } = await api.get(`/profiles/${user._id}`);
         if (data) {
+          // Si el onboarding no está completado, redirigir
+          if (!data.onboardingCompleted) {
+            navigate('/onboarding', { replace: true });
+            return;
+          }
+
           setName(data.displayName || user.name || '');
           setBio(data.bio || '');
           setLocation('');
@@ -67,22 +75,12 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       const interestsPayload = (updatedInterests || interests).map((i) => {
-        // Si el interés está definido en INTERESTS (default) o en los intereses actuales, extraemos el emoji y el nombre
-        if (interests.includes(i) || INTERESTS.includes(i)) {
-          const parts = i.split(' ');
-          const emoji = parts[0];
-          const name = parts.slice(1).join(' ') || i;
-          return { name, emoji };
+        const match = i.match(/^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}])/u);
+        if (match) {
+          const emoji = match[0];
+          const name = i.slice(emoji.length).trim();
+          return { name: name || i, emoji };
         }
-        // Si el interés es nuevo y personalizado, intentamos extraer un emoji si el usuario lo incluyó al inicio
-        const hasEmoji = i.match(/^[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u);
-        if (hasEmoji) {
-          const emoji = hasEmoji[0];
-          const index = hasEmoji.index;
-          const name = i.slice(index + emoji.length).trim();
-          return { name: name, emoji: emoji };
-        }
-        // Si no se encuentra un emoji, asignamos uno aleatorio
         return { name: i, emoji: getRandomEmoji() };
       });
 
