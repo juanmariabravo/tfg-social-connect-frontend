@@ -1,6 +1,6 @@
-# Especificación Técnica: Sprint 2 - Frontend: Usuarios y Perfiles
+El @spec# Especificación Técnica: Sprint 2 - Frontend: Usuarios y Perfiles
 **Fechas:** 04/05/2026 - 18/05/2026
-**Objetivo:** Implementar la interfaz de usuario para autenticación y gestión de perfiles.
+**Objetivo:** Implementar la interfaz de usuario para autenticación y gestión de perfiles utilizando TypeScript y Tailwind CSS 4.
 
 ---
 
@@ -8,17 +8,17 @@
 **Herramienta:** Figma / Lovable
 **Objetivo:** Crear wireframes y mockups antes de implementar
 
-### 0.1 Mockups a crear
-- [ ] Login (/login) - Wireframe mobile + desktop
-- [ ] Registro (/register) - Wireframe mobile + desktop
-- [ ] Perfil (/profile) - Wireframe mobile + desktop
-- [ ] Editar Perfil (/profile/edit) - Wireframe mobile + desktop
-- [ ] Onboarding (/onboarding) - Wireframe de los pasos 1-4
+### 0.1 Mockups creados
+- [x] Login (/login) - Wireframe mobile + desktop
+- [x] Registro (/register) - Wireframe mobile + desktop
+- [x] Perfil (/profile) - Wireframe mobile + desktop
+- [x] Editar Perfil (Integrado en /profile) - Wireframe mobile + desktop
+- [x] Onboarding (/onboarding) - Wireframe de los pasos 1-3
 
 ### 0.2 Entregables
-- [ ] Links a prototipos en Figma/Lovable
-- [ ] Capturas para documentación
-- [ ] Checklist de componentes por vista
+- [x] Links a prototipos en Figma/Lovable
+- [x] Capturas para documentación (Carpeta `/Mockups` en la raíz)
+- [x] Checklist de componentes por vista
 
 ---
 
@@ -26,87 +26,93 @@
 El objetivo principal es implementar las vistas de login, registro y perfil de usuario, conectándolas con los endpoints del backend del Sprint 2.
 
 ## 2. Requisitos Técnicos
-- **Framework:** React.js
-- **Gestión de estado:** Context API o Zustand
+- **Framework:** React.js 19 (TypeScript)
+- **Gestión de estado:** Context API (`AuthContext.tsx`)
 - **Cliente HTTP:** Axios
-- **Enrutamiento:** React Router
-- **Autenticación:** Almacenar JWT en localStorage
+- **Enrutamiento:** React Router 7
+- **Estilos:** Tailwind CSS 4 + Radix UI + Lucide React
+- **Gráficos:** Recharts (para el gráfico de personalidad)
+- **Autenticación:** Almacenar JWT en `localStorage` (`accessToken`)
 
 ## 3. Vistas a implementar
 
-### 3.1 Login (/login)
+### 3.1 Login (/)
+- **Ruta:** `/`
 - **Campos:** email, contraseña
 - **Funcionalidad:**
   - Enviar credenciales a POST /api/auth/login
   - Almacenar JWT en localStorage
-  - Redireccionar a /profile tras login exitoso
+  - Redireccionar a `/onboarding` o `/profile` tras login exitoso
 - **Estados:** idle, loading, error
 
 ### 3.2 Registro (/register)
-- **Campos:** username, email, contraseña, confirmar contraseña
+- **Ruta:** `/register`
+- **Campos:** name, email, contraseña, dateOfBirth
 - **Funcionalidad:**
   - Enviar datos a POST /api/auth/register
   - Almacenar JWT en localStorage
-  - Redireccionar a /profile tras registro exitoso
+  - Redireccionar a `/onboarding` tras registro exitoso
 - **Estados:** idle, loading, error
 
 ### 3.3 Perfil (/profile)
+- **Ruta:** `/profile`
 - **Funcionalidad:**
   - Obtener datos del perfil con GET /api/profiles/:userId
-  - Mostrar datos: displayName, bio, avatar, intereses
-  - Mostrar atributos de personalidad (gráfico o lista)
+  - **Sistema de Fotos Doble:** Alternancia entre Foto Real (User Photo) y Foto Virtual (Avatar).
+  - **Edición Integrada:** Botón para activar modo edición en la misma página.
+  - Mostrar datos: displayName, bio, intereses (con emojis).
+  - Mostrar atributos de personalidad mediante un gráfico de barras horizontales (`PersonalityChart`).
+  - Gestión de fotos mediante `PhotoUploadModal`.
 - **Estados:** loading, loaded, error
 
-### 3.4 Editar Perfil (/profile/edit)
-- **Campos:** displayName, bio, avatar (URL), intereses (tags), personalidad (sliders 1-10)
-- **Funcionalidad:**
-  - Enviar datos modificados a PUT /api/profiles/:userId
-  - Validar campos antes de enviar
-- **Estados:** idle, loading, success, error
-
-### 3.5 Encuesta de Personalidad e Intereses (/onboarding)
-- **Descripción:** Encuesta dinámica inicial para configurar el perfil tras el primer login.
-- **Trigger:** Se muestra cuando el usuario no tiene perfil creado o está vacío.
+### 3.4 Encuesta de Personalidad e Intereses (/onboarding)
+- **Ruta:** `/onboarding`
+- **Descripción:** Encuesta dinámica inicial para configurar el perfil tras el primer registro.
+- **Trigger:** Se muestra automáticamente si `onboardingCompleted` es `false`.
 - **Flujo:**
-  1. Pantalla de bienvenida + explicar propósito.
-  2. Paso 1: Elegir intereses (tags predefinidos + personalizados).
-  3. Paso 2: Contestar preguntas de personalidad (5-10 preguntas scale 1-5).
-  4. Paso 3: Revisar y guardar.
+  1. Configuración del perfil: nombre, descripción y foto (real y avatar).
+  2. Elegir intereses (tags predefinidos + personalizados). Como mínimo 3 intereses.
+  3. Test de personalidad (Big Five traits).
 - **Funcionalidad:**
   - Guardar en PUT /api/profiles/:userId tras completarse.
-  - Marcar perfil como "configurado" para no mostrar de nuevo.
+  - Marcar perfil como "configurado" (`onboardingCompleted: true`).
 - **Estados:** idle, loading, saving, success, error
 
-## 4. Estructura de componentes
-- `/src/pages/Login.jsx`
-- `/src/pages/Register.jsx`
-- `/src/pages/Profile.jsx`
-- `/src/pages/EditProfile.jsx`
-- `/src/pages/Onboarding.jsx` (Encuesta de personalidad e intereses)
-- `/src/components/Navbar.jsx` (Actualizar con menú de usuario logueado)
+## 4. Estructura de componentes y archivos
+- `/src/pages/Login.tsx`
+- `/src/pages/Register.tsx`
+- `/src/pages/Profile.tsx` (Incluye lógica de edición)
+- `/src/pages/Onboarding.tsx`
+- `/src/components/PersonalityChart.tsx` (Bar chart con Recharts)
+- `/src/components/PhotoUploadModal.tsx` (Gestión de imágenes)
+- `/src/components/AuthBranding.tsx` (Componente visual para Login/Register)
+- `/src/components/ui/` (Componentes base: Button, Input, Textarea, Avatar, etc.)
 - `/src/context/AuthContext.jsx` (Gestión de estado de autenticación)
+- `/src/services/api.js` (Configuración de Axios con interceptor)
 
 ## 5. Servicios API
-- `/src/services/api.js`: Configuración de Axios con interceptor para incluir JWT
+- `/src/services/api.js`: Configuración de Axios con interceptor para incluir JWT en la cabecera `Authorization`.
 
 ## 6. Estrategia de Pruebas (Visual/Funcional)
 - **Workflow:**
-  1. Verificar que el formulario de login/envía datos correctamente.
-  2. Verificar que el login redirige al perfil tras éxito.
-  3. Verificar que el perfil muestra los datos del backend.
-  4. Verificar que la edición de perfil guarda los cambios.
+  1. Verificar que el formulario de login envía datos correctamente.
+  2. Verificar que el login redirige al onboarding/perfil tras éxito.
+  3. Verificar que el perfil muestra correctamente el gráfico de personalidad y las fotos.
+  4. Verificar que la edición de perfil (nombre, bio, intereses) persiste en el backend.
 
 ## 7. Definición de Hecho (Definition of Done)
 ### Fase Diseño
-- [ ] Los mockups de todas las vistas están creados en Figma/Lovable.
-- [ ] Se han validado los wireframes antes de implementar.
+- [x] Los mockups de todas las vistas están creados y guardados en `/Mockups`.
+- [x] Se han validado los wireframes antes de implementar.
 
 ### Fase Implementación
-- [ ] La vista de Login está operativa y conecta con el backend.
-- [ ] La vista de Registro está operativa y conecta con el backend.
-- [ ] La vista de Perfil muestra los datos correctamente.
-- [ ] La edición de perfil funciona.
-- [ ] El token JWT se gestiona correctamente (login/logout).
-- [ ] El código está subido a la rama `feature/` y mergeado a `main`.
+- [x] La vista de Login está operativa y conecta con el backend.
+- [x] La vista de Registro está operativa y conecta con el backend.
+- [x] La vista de Perfil muestra los datos, el gráfico de personalidad y las fotos.
+- [x] La edición de perfil integrada en la página de perfil funciona.
+- [x] El Onboarding está completo y marca el perfil como finalizado.
+- [x] El token JWT se gestiona correctamente en localStorage.
+- [x] El código está migrado a TypeScript (.tsx) casi en su totalidad.
+- [x] El código está mergeado a la rama `main`.
 
 *La documentación refleja siempre la realidad del código.*
