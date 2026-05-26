@@ -1,6 +1,8 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Home, Compass, CalendarHeart, MessageCircle, User, Bell } from 'lucide-react';
 import { Logo } from '../Logo';
+import { useSocket } from '../../context/SocketContext';
+import { useState, useEffect } from 'react';
 
 const items = [
   { to: '/home', label: 'Inicio', icon: Home },
@@ -11,7 +13,36 @@ const items = [
 ] as const;
 
 export function AppShell() {
-  const path = useLocation().pathname;
+  const location = useLocation();
+  const path = location.pathname;
+  const { socket } = useSocket();
+  const [hasUnreadChat, setHasUnreadChat] = useState(false);
+
+  // Escuchar nuevos mensajes para activar el badge
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = () => {
+      // Si no estamos en la página de chat, activamos el puntito rojo
+      if (!path.startsWith('/chat')) {
+        setHasUnreadChat(true);
+      }
+    };
+
+    socket.on('new_message', handleNewMessage);
+
+    return () => {
+      socket.off('new_message', handleNewMessage);
+    };
+  }, [socket, path]);
+
+  // Limpiar el badge cuando el usuario entra a la sección de chat
+  useEffect(() => {
+    if (path.startsWith('/chat')) {
+      setHasUnreadChat(false);
+    }
+  }, [path]);
+
   return (
     <div className="min-h-screen bg-surface">
       {/* Desktop sidebar */}
@@ -21,13 +52,20 @@ export function AppShell() {
           {items.map((it) => {
             const active = path.startsWith(it.to);
             const Icon = it.icon;
+            const showBadge = it.to === '/chat' && hasUnreadChat;
+
             return (
               <Link
                 key={it.to}
                 to={it.to}
                 className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all hover:bg-surface ${active ? 'gradient-primary text-white shadow-card' : 'text-foreground'}`}
               >
-                <Icon className="h-5 w-5" />
+                <div className="relative">
+                  <Icon className="h-5 w-5" />
+                  {showBadge && (
+                    <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-primary border-2 border-white" />
+                  )}
+                </div>
                 {it.label}
               </Link>
             );
@@ -51,12 +89,11 @@ export function AppShell() {
         <Logo size="sm" />
         <Link to="/notifications" className="relative rounded-full p-2 hover:bg-surface">
           <Bell className="h-5 w-5" />
-          {/* if there are new notifications, show a red dot */}
           <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary" />
         </Link>
       </header>
 
-      {/* Desktop top-right notifications */}
+      {/* Desktop top-right notifications shortcut */}
       <div className="fixed top-4 right-6 z-20 hidden lg:block">
         <Link
           to="/notifications"
@@ -64,7 +101,7 @@ export function AppShell() {
         >
           <Bell className="h-5 w-5" />
           <span className="absolute top-1 right-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white">
-            N
+            3
           </span>
         </Link>
       </div>
@@ -80,13 +117,20 @@ export function AppShell() {
         {items.map((it) => {
           const active = path.startsWith(it.to);
           const Icon = it.icon;
+          const showBadge = it.to === '/chat' && hasUnreadChat;
+
           return (
             <Link
               key={it.to}
               to={it.to}
               className={`flex flex-col items-center justify-center gap-1 text-xs transition-colors ${active ? 'text-primary' : 'text-muted-foreground'}`}
             >
-              <Icon className="h-5 w-5" />
+              <div className="relative">
+                <Icon className="h-5 w-5" />
+                {showBadge && (
+                  <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-primary border-2 border-white" />
+                )}
+              </div>
               <span className="font-medium">{it.label}</span>
             </Link>
           );
