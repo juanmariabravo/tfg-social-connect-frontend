@@ -1,10 +1,25 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api from '../services/api';
 
-const AuthContext = createContext(null);
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  [key: string]: any;
+}
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (token: string, userData: User) => void;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -23,7 +38,7 @@ export function AuthProvider({ children }) {
           const response = await api.get('/auth/me');
           setUser(response.data);
           setIsAuthenticated(true);
-        } catch (err) {
+        } catch (err: any) {
           console.error('Error al cargar usuario:', err.response?.status, err.message);
           logout();
         }
@@ -35,7 +50,7 @@ export function AuthProvider({ children }) {
     loadUser();
   }, []);
 
-  const login = (token, userData) => {
+  const login = (token: string, userData: User) => {
     localStorage.setItem('accessToken', token);
     setUser(userData);
     setIsAuthenticated(true);
