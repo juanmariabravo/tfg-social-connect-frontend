@@ -1,10 +1,16 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { AppShell } from './components/layout/AppShell';
 import { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import ProfilePage from './pages/Profile';
 import OnboardingPage from './pages/Onboarding';
+import HomePage from './pages/Home';
+import ExplorePage from './pages/Explore';
+import PlansPage from './pages/Plans';
+import ChatPage from './pages/Chat';
+import NotificationsPage from './pages/Notifications';
 import api from './services/api';
 import { Loader2 } from 'lucide-react';
 
@@ -75,13 +81,19 @@ export default function App() {
         }
       />
       <Route
-        path="/profile"
         element={
           <ProtectedRoute>
-            <ProfilePage />
+            <AppShell />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/plans" element={<PlansPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+      </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
