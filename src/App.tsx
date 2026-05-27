@@ -91,6 +91,7 @@ export default function App() {
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/plans" element={<PlansPage />} />
         <Route path="/chat" element={<ChatPage />} />
+        <Route path="/chat/:chatId" element={<ChatPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
