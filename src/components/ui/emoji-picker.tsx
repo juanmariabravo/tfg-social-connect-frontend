@@ -296,7 +296,7 @@ export default function EmojiPicker({
             <TabsList
               className="grid h-auto w-full p-1"
               style={{
-                gridTemplateColumns: `repeat(${recentEmojis.length > 0 ? Math.min(categories.length + 1, 6) : Math.min(categories.length, 4)}, 1fr)`,
+                gridTemplateColumns: `repeat(${recentEmojis.length > 0 ? Math.min(categories.length + 1, 6) : Math.min(categories.length, 6)}, 1fr)`,
               }}
             >
               {recentEmojis.length > 0 && (
