@@ -8,8 +8,8 @@ export const chatService = {
     name?: string;
     emojiIcon?: string;
   }) => api.post('/chats', data),
-  getMessages: (chatId: string, page = 1, limit = 20) =>
-    api.get(`/chats/${chatId}/messages`, { params: { page, limit } }),
+  getMessages: (chatId: string, cursor: string | null = null, limit = 20) =>
+    api.get(`/chats/${chatId}/messages`, { params: { cursor, limit } }),
   sendMessage: (chatId: string, content: string) =>
     api.post(`/chats/${chatId}/messages`, { content }),
 };
