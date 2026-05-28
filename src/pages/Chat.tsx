@@ -465,7 +465,6 @@ export default function ChatPage() {
                     );
                   })}
                   <div ref={messagesEndRef} />
-                  <hr className="my-4 border-t border-gray-200" />
                 </>
               )}
             </div>
