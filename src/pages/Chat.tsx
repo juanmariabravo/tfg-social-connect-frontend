@@ -70,9 +70,21 @@ export default function ChatPage() {
   const [messageInput, setMessageInput] = useState('');
   const [isSending, setIsSending] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const scrollSnapshotRef = useRef<{ scrollHeight: number } | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null); // para scroll hacia el último mensaje
+  const messagesContainerRef = useRef<HTMLDivElement>(null); // para scroll infinito y mantener la posición al cargar más mensajes
+  const prevScrollHeight = useRef<number | null>(null);
+
+  const scrollToBottom = (behavior: 'auto' | 'smooth' = 'smooth') => {
+    // Usamos setTimeout para esperar al renderizado y actualización de scrollHeight
+    setTimeout(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTo({
+          top: messagesContainerRef.current.scrollHeight,
+          behavior,
+        });
+      }
+    }, 100);
+  };
 
   // Load chats on mount
   useEffect(() => {
@@ -110,6 +122,7 @@ export default function ChatPage() {
       // If this message belongs to current active chat, add it
       if (payload.chatId === chatId) {
         setMessages((prev) => [...prev, payload.message]);
+        scrollToBottom();
       }
     };
 
@@ -124,7 +137,7 @@ export default function ChatPage() {
     if (chatId) {
       setPage(1);
       setHasMore(true);
-      loadMessages(chatId, 1);
+      loadMessages(chatId, 1).then(() => scrollToBottom('auto'));
       if (socket) {
         socket.emit('join_chat', chatId);
       }
@@ -136,22 +149,14 @@ export default function ChatPage() {
     }
   }, [chatId, socket]);
 
-  // Auto-scroll to bottom only on initial load or new message
-  useEffect(() => {
-    if (page === 1 && !loadingMore) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages, page, loadingMore]);
-
   useLayoutEffect(() => {
-    if (scrollSnapshotRef.current && messagesContainerRef.current) {
-      const { scrollHeight: prevScrollHeight } = scrollSnapshotRef.current;
+    if (prevScrollHeight.current && messagesContainerRef.current) {
       const container = messagesContainerRef.current;
 
-      container.scrollTop = container.scrollHeight - prevScrollHeight;
-      scrollSnapshotRef.current = null;
+      container.scrollTop = container.scrollHeight - prevScrollHeight.current;
+      prevScrollHeight.current = null;
     }
-  }, [messages]);
+  }, [messages, page, loadingMore]);
 
   const loadChats = async () => {
     try {
@@ -175,10 +180,9 @@ export default function ChatPage() {
       const newMessages = data.messages.reverse();
 
       if (isMore && messagesContainerRef.current) {
-        // Record current dimensions before state update
-        scrollSnapshotRef.current = {
-          scrollHeight: messagesContainerRef.current.scrollHeight,
-        };
+        // Record only the scrollHeight before state update
+        prevScrollHeight.current = messagesContainerRef.current.scrollHeight;
+
         setMessages((prev) => [...newMessages, ...prev]);
       } else {
         setMessages(newMessages);
@@ -208,10 +212,7 @@ export default function ChatPage() {
 
     try {
       setIsSending(true);
-      messagesContainerRef.current?.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
+      scrollToBottom();
       const content = messageInput;
       setMessageInput('');
       await chatService.sendMessage(chatId, content);
@@ -464,6 +465,7 @@ export default function ChatPage() {
                     );
                   })}
                   <div ref={messagesEndRef} />
+                  <hr className="my-4 border-t border-gray-200" />
                 </>
               )}
             </div>
