@@ -87,8 +87,11 @@ export default function ChatPage() {
       // Update chats list (move chat to top, update last message)
       setChats((prev) => {
         const chatIdx = prev.findIndex((c) => c._id === payload.chatId);
-        if (chatIdx === -1) return prev; // Chat not in list, might need reloading list
-
+        if (chatIdx === -1) {
+          // Si el chat no está en la lista (chat nuevo), recargamos la lista
+          loadChats();
+          return prev;
+        }
         const updatedChat = {
           ...prev[chatIdx],
           lastMessage: {
