@@ -49,6 +49,7 @@ interface Chat {
     sender: string;
   };
   updatedAt: string;
+  unreadCount?: number;
 }
 
 export default function ChatPage() {
@@ -73,6 +74,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null); // para scroll hacia el último mensaje
   const messagesContainerRef = useRef<HTMLDivElement>(null); // para scroll infinito y mantener la posición al cargar más mensajes
   const prevScrollHeight = useRef<number | null>(null);
+  const currentChatRef = useRef<string | null>(null);
 
   const scrollToBottom = (behavior: 'auto' | 'smooth' = 'smooth') => {
     // Usamos setTimeout para esperar al renderizado y actualización de scrollHeight
@@ -104,6 +106,10 @@ export default function ChatPage() {
           loadChats();
           return prev;
         }
+
+        const isCurrentChat = payload.chatId === chatId;
+        const isMessageFromOtherUser = payload.message.sender._id !== user?._id;
+
         const updatedChat = {
           ...prev[chatIdx],
           lastMessage: {
@@ -112,6 +118,11 @@ export default function ChatPage() {
             sender: payload.message.sender._id,
           },
           updatedAt: payload.message.createdAt,
+          // Incrementar unreadCount si no es el chat actual y el mensaje no es del usuario
+          unreadCount:
+            isCurrentChat || !isMessageFromOtherUser
+              ? prev[chatIdx].unreadCount || 0
+              : (prev[chatIdx].unreadCount || 0) + 1,
         };
 
         const newList = [...prev];
@@ -140,7 +151,18 @@ export default function ChatPage() {
       loadMessages(chatId, 1).then(() => scrollToBottom('auto'));
       if (socket) {
         socket.emit('join_chat', chatId);
+        currentChatRef.current = chatId;
+
+        // Marcar el chat como leído en el frontend (el backend lo marca automáticamente en join_chat)
+        setChats((prev) => prev.map((c) => (c._id === chatId ? { ...c, unreadCount: 0 } : c)));
       }
+
+      // Cleanup: salir del chat cuando se desmonta o cambia chatId
+      return () => {
+        if (socket && currentChatRef.current) {
+          socket.emit('leave_chat', currentChatRef.current);
+        }
+      };
     } else {
       // Quitar chat window, volver a lista de chats
       setMessages([]);
@@ -327,6 +349,11 @@ export default function ChatPage() {
                       </AvatarFallback>
                     </Avatar>
                   )}
+                  {c.unreadCount ? (
+                    <span className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full gradient-primary text-white flex items-center justify-center text-[10px] font-bold shadow-md">
+                      {c.unreadCount > 99 ? '99+' : c.unreadCount}
+                    </span>
+                  ) : null}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-1 mb-0.5">
