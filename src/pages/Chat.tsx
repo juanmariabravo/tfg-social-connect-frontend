@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -64,10 +64,15 @@ export default function ChatPage() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [messageInput, setMessageInput] = useState('');
   const [isSending, setIsSending] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const scrollSnapshotRef = useRef<{ scrollHeight: number } | null>(null);
 
   // Load chats on mount
   useEffect(() => {
@@ -98,7 +103,7 @@ export default function ChatPage() {
         newList.splice(chatIdx, 1);
         return [updatedChat, ...newList];
       });
-
+      //console.log('Received new message via socket:', payload);
       // If this message belongs to current active chat, add it
       if (payload.chatId === chatId) {
         setMessages((prev) => [...prev, payload.message]);
@@ -114,19 +119,35 @@ export default function ChatPage() {
   // Load messages when chatId changes
   useEffect(() => {
     if (chatId) {
-      loadMessages(chatId);
+      setPage(1);
+      setHasMore(true);
+      loadMessages(chatId, 1);
       if (socket) {
         socket.emit('join_chat', chatId);
       }
     } else {
       // Quitar chat window, volver a lista de chats
       setMessages([]);
+      setPage(1);
+      setHasMore(true);
     }
   }, [chatId, socket]);
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom only on initial load or new message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (page === 1 && !loadingMore) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, page, loadingMore]);
+
+  useLayoutEffect(() => {
+    if (scrollSnapshotRef.current && messagesContainerRef.current) {
+      const { scrollHeight: prevScrollHeight } = scrollSnapshotRef.current;
+      const container = messagesContainerRef.current;
+
+      container.scrollTop = container.scrollHeight - prevScrollHeight;
+      scrollSnapshotRef.current = null;
+    }
   }, [messages]);
 
   const loadChats = async () => {
@@ -141,17 +162,41 @@ export default function ChatPage() {
     }
   };
 
-  const loadMessages = async (id: string) => {
+  const loadMessages = async (id: string, pageNum: number, isMore = false) => {
     try {
-      setLoadingMessages(true);
-      const { data } = await chatService.getMessages(id);
-      // Backend returns { messages: [], pagination: {} }
-      setMessages(data.messages.reverse());
+      if (isMore) setLoadingMore(true);
+      else setLoadingMessages(true);
+
+      const { data } = await chatService.getMessages(id, pageNum);
+
+      const newMessages = data.messages.reverse();
+
+      if (isMore && messagesContainerRef.current) {
+        // Record current dimensions before state update
+        scrollSnapshotRef.current = {
+          scrollHeight: messagesContainerRef.current.scrollHeight,
+        };
+        setMessages((prev) => [...newMessages, ...prev]);
+      } else {
+        setMessages(newMessages);
+      }
+
+      setHasMore(data.pagination.hasMore);
     } catch (error) {
       console.error('Error loading messages:', error);
-      navigate('/chat'); // Volver a lista de chats si hay error cargando mensajes (ej: chat no existe o no tengo acceso)
+      if (!isMore) navigate('/chat');
     } finally {
       setLoadingMessages(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = e.currentTarget;
+    if (scrollTop === 0 && hasMore && !loadingMore && !loadingMessages && chatId) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadMessages(chatId, nextPage, true);
     }
   };
 
@@ -160,6 +205,10 @@ export default function ChatPage() {
 
     try {
       setIsSending(true);
+      messagesContainerRef.current?.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
       const content = messageInput;
       setMessageInput('');
       await chatService.sendMessage(chatId, content);
@@ -350,11 +399,15 @@ export default function ChatPage() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-surface/30">
+            <div
+              ref={messagesContainerRef}
+              onScroll={handleScroll}
+              className="flex-1 overflow-y-auto p-4 space-y-3 bg-surface/30"
+            >
               {loadingMessages ? (
                 <div className="flex flex-col items-center justify-center h-full gap-2 opacity-40">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <p className="text-xs font-medium">Recuperando mensajes...</p>
+                  <p className="text-xs font-medium">Cargando mensajes...</p>
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center p-8 opacity-40">
@@ -368,6 +421,11 @@ export default function ChatPage() {
                 </div>
               ) : (
                 <>
+                  {loadingMore && (
+                    <div className="flex justify-center py-2">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary opacity-50" />
+                    </div>
+                  )}
                   {messages.map((m, i) => {
                     const isMe = m.sender._id === user?._id;
                     return (
