@@ -67,7 +67,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [messageInput, setMessageInput] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -148,9 +148,9 @@ export default function ChatPage() {
   // Load messages when chatId changes
   useEffect(() => {
     if (chatId) {
-      setPage(1);
+      setNextCursor(null);
       setHasMore(true);
-      loadMessages(chatId, 1).then(() => scrollToBottom('auto'));
+      loadMessages(chatId).then(() => scrollToBottom('auto'));
       if (socket) {
         socket.emit('join_chat', chatId);
         currentChatRef.current = chatId;
@@ -168,7 +168,7 @@ export default function ChatPage() {
     } else {
       // Quitar chat window, volver a lista de chats
       setMessages([]);
-      setPage(1);
+      setNextCursor(null);
       setHasMore(true);
     }
   }, [chatId, socket]);
@@ -180,7 +180,7 @@ export default function ChatPage() {
       container.scrollTop = container.scrollHeight - prevScrollHeight.current;
       prevScrollHeight.current = null;
     }
-  }, [messages, page, loadingMore]);
+  }, [messages, nextCursor, loadingMore]);
 
   const loadChats = async () => {
     try {
@@ -194,12 +194,12 @@ export default function ChatPage() {
     }
   };
 
-  const loadMessages = async (id: string, pageNum: number, isMore = false) => {
+  const loadMessages = async (id: string, cursor: string | null = null, isMore = false) => {
     try {
       if (isMore) setLoadingMore(true);
       else setLoadingMessages(true);
 
-      const { data } = await chatService.getMessages(id, pageNum);
+      const { data } = await chatService.getMessages(id, cursor);
 
       const newMessages = data.messages.reverse();
 
@@ -212,6 +212,7 @@ export default function ChatPage() {
         setMessages(newMessages);
       }
 
+      setNextCursor(data.pagination.nextCursor);
       setHasMore(data.pagination.hasMore);
     } catch (error) {
       console.error('Error loading messages:', error);
@@ -224,10 +225,8 @@ export default function ChatPage() {
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
-    if (scrollTop === 0 && hasMore && !loadingMore && !loadingMessages && chatId) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      loadMessages(chatId, nextPage, true);
+    if (scrollTop === 0 && hasMore && !loadingMore && !loadingMessages && chatId && nextCursor) {
+      loadMessages(chatId, nextCursor, true);
     }
   };
 
