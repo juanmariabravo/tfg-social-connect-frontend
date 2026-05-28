@@ -437,14 +437,15 @@ export default function ChatPage() {
                         key={m._id || i}
                         className={`flex items-end gap-2 ${isMe ? 'justify-end' : 'justify-start'}`}
                       >
-                        {!isMe && currentChat?.isGroup && (
+                        {/* Avatar del remitente del mensaje en cada mensaje si es un grupo y yo no soy el remitente */}
+                        {/* {!isMe && currentChat?.isGroup && (
                           <Avatar className="h-7 w-7 rounded-lg mb-1">
                             <AvatarImage src={m.sender.profile?.avatar} />
                             <AvatarFallback className="text-[8px]">
                               {m.sender.name.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                        )}
+                        )} */}
                         <div className="flex flex-col max-w-[75%]">
                           {!isMe && currentChat?.isGroup && (
                             <span className="text-[9px] font-bold text-gray-400 ml-2 mb-0.5">
