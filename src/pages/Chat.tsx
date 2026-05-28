@@ -20,6 +20,7 @@ import { useSocket } from '../context/SocketContext';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import NewChatModal from '../components/NewChatModal';
+import EmojiPicker from '@/components/ui/emoji-picker';
 
 interface Participant {
   _id: string;
@@ -71,6 +72,7 @@ export default function ChatPage() {
   const [messageInput, setMessageInput] = useState('');
   const [isSending, setIsSending] = useState(false);
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null); // para scroll hacia el último mensaje
   const messagesContainerRef = useRef<HTMLDivElement>(null); // para scroll infinito y mantener la posición al cargar más mensajes
   const prevScrollHeight = useRef<number | null>(null);
@@ -226,6 +228,31 @@ export default function ChatPage() {
       const nextPage = page + 1;
       setPage(nextPage);
       loadMessages(chatId, nextPage, true);
+    }
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    const input = inputRef.current;
+    if (input) {
+      const startPos = input.selectionStart || messageInput.length;
+      const endPos = input.selectionEnd || messageInput.length;
+
+      const newValue =
+        messageInput.substring(0, startPos) +
+        emoji +
+        messageInput.substring(endPos, messageInput.length);
+
+      setMessageInput(newValue);
+
+      // Mover el cursor justo después del emoji insertado
+      setTimeout(() => {
+        input.focus();
+        const newCursorPos = startPos + emoji.length;
+        input.setSelectionRange(newCursorPos, newCursorPos);
+      }, 10);
+    } else {
+      // Fallback por defecto
+      setMessageInput((prev) => prev + emoji);
     }
   };
 
@@ -500,20 +527,29 @@ export default function ChatPage() {
             {/* Input Area */}
             <div className="p-4 bg-white border-t border-border">
               <div className="flex items-center gap-2">
-                <button className="p-2 text-gray-400 hover:text-primary transition-colors">
+                {/* <button className="p-2 text-gray-400 hover:text-primary transition-colors">
                   <ImageIcon className="h-5 w-5" />
-                </button>
+                </button> */}
                 <div className="flex-1 relative">
                   <Input
+                    ref={inputRef}
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                     placeholder="Escribe un mensaje..."
                     className="h-11 rounded-2xl bg-surface border-transparent focus:bg-white pr-12 transition-all text-sm"
                   />
-                  <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary">
-                    <Smile className="h-5 w-5" />
-                  </button>
+                  <EmojiPicker
+                    onEmojiSelect={handleEmojiSelect}
+                    trigger={
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"
+                      >
+                        <Smile className="h-5 w-5" />
+                      </button>
+                    }
+                  />
                 </div>
                 <button
                   onClick={sendMessage}
