@@ -62,8 +62,7 @@ Construir la estructura global de navegación (Navbar), desarrollar todo el sist
 
 ## 5. Estructura de Componentes
 - `/src/components/layout/Navbar.tsx` (Componente persistente de diseño principal).
-- `/src/pages/Chats.tsx` (Listado).
-- `/src/pages/ChatRoom.tsx` (Ventana de conversación).
+- `/src/pages/Chats.tsx` (Listado de conversaciones y vista de cada chat).
 - `/src/components/chat/NewChatModal.tsx` (Creación de grupos/individuales).
 - `/src/context/SocketContext.tsx` (Gestor de la conexión en tiempo real).
 
