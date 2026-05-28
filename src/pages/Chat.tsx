@@ -20,6 +20,7 @@ import { useSocket } from '../context/SocketContext';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import NewChatModal from '../components/NewChatModal';
+import EmojiPicker from '@/components/ui/emoji-picker';
 
 interface Participant {
   _id: string;
@@ -500,9 +501,9 @@ export default function ChatPage() {
             {/* Input Area */}
             <div className="p-4 bg-white border-t border-border">
               <div className="flex items-center gap-2">
-                <button className="p-2 text-gray-400 hover:text-primary transition-colors">
+                {/* <button className="p-2 text-gray-400 hover:text-primary transition-colors">
                   <ImageIcon className="h-5 w-5" />
-                </button>
+                </button> */}
                 <div className="flex-1 relative">
                   <Input
                     value={messageInput}
@@ -511,9 +512,17 @@ export default function ChatPage() {
                     placeholder="Escribe un mensaje..."
                     className="h-11 rounded-2xl bg-surface border-transparent focus:bg-white pr-12 transition-all text-sm"
                   />
-                  <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary">
-                    <Smile className="h-5 w-5" />
-                  </button>
+                  <EmojiPicker
+                    onEmojiSelect={(emoji) => setMessageInput((prev) => prev + emoji)}
+                    trigger={
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary"
+                      >
+                        <Smile className="h-5 w-5" />
+                      </button>
+                    }
+                  />
                 </div>
                 <button
                   onClick={sendMessage}
