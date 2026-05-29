@@ -1,21 +1,18 @@
 # Especificación Técnica: Sprint 3 - Frontend: Mensajería y Navegación
 **Fechas:** 18/05/2026 - 31/05/2026
-**Objetivo:** Implementar la interfaz del chat (individual y grupal), la lista de conversaciones, notificaciones síncronas y la barra de navegación principal.
+**Estado:** Finalizado ✅
 
 ---
 
 ## 0. Fase de Diseño (Mockups)
-**Herramienta:** Figma / Lovable
+**Herramienta:** Lovable
 **Objetivo:** Diseñar la experiencia de usuario para la comunicación y navegación.
 
-### 0.1 Mockups a crear
-- [ ] **Navbar:** Barra de navegación global (adaptada a Mobile/Desktop). Aparecerán las secciones Inicio, Explorar, Planes, Chats, Perfil. Incluir indicador visual de notificaciones en el icono de chat.
-- [ ] **Chat (Listado):** Vista de conversaciones activas con último mensaje y estado de lectura.
-- [ ] **Chat (Ventana):** Burbujas de chat, input de texto que permite enviar con Enter, scroll automático al recibir mensaje y carga de mensajes antiguos al hacer scroll hacia arriba. Permite botón de adjuntar foto (opcional) y de visualizador de emojis.
-- [ ] **Nuevo Chat:** Modal o vista para crear chat seleccionando múltiples amigos.
-
-### 0.2 Entregables
-- [ ] Enlaces a prototipos / Capturas en la carpeta `/Mockups`.
+### 0.1 Mockups Implementados
+- [x] **Navbar:** Barra de navegación global adaptada. Incluye indicadores de navegación activa.
+- [x] **Chat (Listado):** Vista de conversaciones con avatares, últimos mensajes, fechas relativas y contadores de mensajes no leídos (`unreadCount`).
+- [x] **Chat (Ventana):** Interfaz moderna con burbujas, soporte para grupos (nombres de remitentes), scroll automático al recibir y scroll infinito hacia arriba.
+- [x] **Nuevo Chat:** Modal avanzado con selección de tipo (Individual o Grupo), selector de emojis e input de nombre de grupo.
 
 ---
 
@@ -24,67 +21,62 @@ Construir la estructura global de navegación (Navbar), desarrollar todo el sist
 
 ## 2. Requisitos Técnicos
 - **Framework:** React 19 (TypeScript)
-- **Estilos:** Tailwind CSS 4 + Componentes UI (Radix/shadcn).
+- **Estilos:** Tailwind CSS 4 + Componentes UI (Lucide React, Radix/shadcn).
 - **WebSockets:** `socket.io-client`.
 - **Gestión de Estado Síncrono:** Context API (`SocketContext.tsx`).
-- **Enrutamiento:** React Router 7.
+- **Navegación:** React Router 7.
 
-## 3. Vistas y Componentes a Implementar
+## 3. Vistas y Componentes Implementados
 
 ### 3.1 Navbar (Navegación Global)
-- **Funcionalidad:** Permitir el movimiento entre las secciones clave de la app (Inicio, Explorar, Planes, Chats, Perfil).
-- **Notificaciones Síncronas:** Implementar alertas visuales (puntito rojo en el icono de chat o número) que se actualicen en tiempo real al recibir un evento síncrono.
+- **Funcionalidad:** Navegación entre Inicio, Explorar, Planes, Chats, Perfil.
+- **Notificaciones Síncronas:** Alertas visuales reactivas al recibir eventos de socket.
 
-### 3.2 Chat - Listado (/chats)
+### 3.2 Chat - Listado (/chat)
 - **Funcionalidad:**
-  - Consumir el endpoint GET `/api/chats`.
-  - Renderizar la lista de conversaciones con el nombre, último mensaje y estado.
-  - Incluir botón de acción flotante (FAB) o similar para "Nuevo Chat".
+  - Consumo de `GET /api/chats`.
+  - Filtro de búsqueda por nombre de chat/usuario.
+  - Indicadores de mensajes no leídos en tiempo real.
+  - Formato de fechas relativo (ej: "hace 2 min").
 
-### 3.3 Chat - Nuevo (Modal o Vista)
+### 3.3 Chat - Nuevo (Modal)
 - **Funcionalidad:**
-  - Consumir la lista de amigos (GET `/api/friends`).
-  - Permitir selección múltiple para crear un chat de grupo, o individual.
-  - Llamar a POST `/api/chats` y redirigir a la ventana del nuevo chat.
+  - Selección de modo: Chat Individual o Crear Grupo.
+  - Selección múltiple de amigos para grupos.
+  - Personalización de grupo con Nombre y Emoji (integración con `EmojiPicker`).
+  - Redirección automática al nuevo chat creado.
 
-### 3.4 Chat - Ventana de Conversación (/chats/:chatId)
+### 3.4 Chat - Ventana de Conversación (/chat/:chatId)
 - **Funcionalidad:**
-  - Diseño de burbujas (derecha para enviados, izquierda para recibidos).
-  - **Scroll:** Scroll automático hacia el último mensaje al entrar y al recibir un mensaje nuevo.
-  - **Historial:** Recargar mensajes más antiguos al hacer scroll hacia arriba (integración con GET `/api/chats/:chatId/messages`).
-  - Enviar mensaje al pulsar la tecla `Enter`.
+  - **Scroll Infinito:** Carga de mensajes antiguos al llegar al tope superior mediante paginación por cursor.
+  - **Auto-scroll:** Desplazamiento inteligente al final al enviar o recibir mensajes.
+  - **Status:** Indicador de estado del otro usuario (Activo ahora / Desconectado) basado en eventos de socket.
+  - **Input:** Envío con `Enter`, soporte para emojis y estado de "Enviando...".
 
 ## 4. Integración Síncrona (WebSockets)
-- **Lógica de Conexión:** Crear un `SocketProvider` que inicialice la conexión a Socket.io únicamente cuando el usuario esté autenticado (pasando el JWT).
-- **Manejo de Eventos:**
-  - Escuchar evento `new_message` para agregar el mensaje dinámicamente a la ventana de chat si está abierta, o actualizar el contador/último mensaje en la lista de chats/navbar.
-  - Preparar infraestructura (listeners) para solictudes de amistad.
+- **Tecnología:** `socket.io-client` con autenticación por JWT.
+- **Eventos Definidos (Sincronizados con Backend):**
+  - `user_status_change` (Escucha): Actualiza globalmente el estado de conexión de los usuarios (Online/Offline).
+  - `new_message` (Escucha): Recibe mensajes en tiempo real para actualizar la ventana de chat y el `unreadCount`.
+  - `join_chat` (Emite): Informa al servidor que el usuario está viendo un chat específico.
+  - `leave_chat` (Emite): Informa al servidor que el usuario ha dejado de ver el chat.
+  - `friend_request` (Escucha): Preparado para mostrar notificaciones de nuevas solicitudes.
+- **Gestión de Estado:** Implementado mediante `SocketProvider` para disponibilidad global del socket y estado de conexión.
 
-## 5. Estructura de Componentes
-- `/src/components/layout/Navbar.tsx` (Componente persistente de diseño principal).
-- `/src/pages/Chats.tsx` (Listado de conversaciones y vista de cada chat).
-- `/src/components/chat/NewChatModal.tsx` (Creación de grupos/individuales).
-- `/src/context/SocketContext.tsx` (Gestor de la conexión en tiempo real).
+## 5. Estructura de Componentes Clave
+- `src/context/SocketContext.tsx`: Corazón de la comunicación en tiempo real.
+- `src/pages/Chat.tsx`: Vista principal unificada (Sidebar + Ventana).
+- `src/components/NewChatModal.tsx`: Lógica compleja de creación de hilos sociales.
+- `src/components/ui/emoji-picker.tsx`: Componente reutilizable para selección de emojis.
 
-## 6. Estrategia de Pruebas (Visual y Funcional)
-- **Workflow:**
-  1. Validar que la Navbar se muestra en todas las rutas protegidas y navega correctamente.
-  2. Crear un chat con un usuario de prueba y comprobar que se renderiza la lista.
-  3. Probar el envío de un mensaje pulsando "Enter" y verificar la aparición inmediata de la burbuja.
-  4. Testing cruzado (dos pestañas simulando dos usuarios): verificar que el receptor recibe el mensaje por WebSocket, hace auto-scroll y el indicador del Navbar se enciende.
-  5. Comprobar la carga de mensajes antiguos al hacer scroll up.
+## 6. Definición de Hecho (Definition of Done)
+- [x] Navbar funcional con indicador de notificaciones reactivo a WebSockets.
+- [x] Listado de chats conectado al backend con soporte para mensajes no leídos.
+- [x] Modal de nuevo chat con soporte para grupos y personalización.
+- [x] Ventana de chat operativa con scroll infinito y auto-scroll.
+- [x] Conexión de `socket.io-client` global y autenticada.
+- [x] Indicadores de estado Online/Offline funcionando en tiempo real.
+- [x] Integración de EmojiPicker en el chat y creación de grupos.
+- [x] Código verificado y mergeado en `main`.
 
-## 7. Definición de Hecho (Definition of Done)
-### Fase Diseño
-- [ ] Wireframes/Mockups validados y documentados.
-
-### Fase Implementación
-- [ ] Navbar funcional con indicador de notificaciones reactivo a WebSockets.
-- [ ] Listado de chats conectado al backend.
-- [ ] Modal de nuevo chat soporta selección múltiple de amigos.
-- [ ] Ventana de chat operativa (burbujas, envío con Enter, auto-scroll).
-- [ ] Conexión de `socket.io-client` implementada globalmente mediante Context, autenticada con JWT.
-- [ ] Mensajes en tiempo real comprobados y funcionando entre clientes.
-- [ ] Código subido a la rama `feature/` y mergeado a `main`.
-
-*La documentación refleja siempre la realidad del código.*
+*La documentación refleja la realidad del código al cierre del Sprint 3.*
