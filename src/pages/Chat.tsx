@@ -17,6 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/avatar';
 import { chatService } from '../services/social';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
+import { useActiveUsers } from '../hooks/useActiveUsers';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import NewChatModal from '../components/NewChatModal';
@@ -276,6 +277,8 @@ export default function ChatPage() {
 
   const currentChat = useMemo(() => chats.find((c) => c._id === chatId), [chats, chatId]);
 
+  const { isUserActive } = useActiveUsers(chatId);
+
   const filteredChats = useMemo(
     () =>
       chats.filter((chat) => {
@@ -294,23 +297,24 @@ export default function ChatPage() {
   };
 
   const getChatAvatar = (chat: Chat) => {
-    if (chat.isGroup) return null;
+    if (chat.isGroup) return undefined;
     const otherParticipant = chat.participants.find((p) => p._id !== user?._id);
     return otherParticipant?.profile?.avatar;
   };
 
   const activeChatSubtitle = useMemo(() => {
     if (!currentChat) return '';
-    // TODO
-    // onlineMembers = miembros conectados actualmente, totalMembers = currentChat.participants.length
     if (currentChat.isGroup) {
-      // return `${onlineMembers} de ${totalMembers} miembros activos`;
-      return `${currentChat.participants.length} miembros`;
+      const totalCount = currentChat.participants.length;
+      return `${totalCount} miembros`;
     }
-    const otherParticipantStatus = 'Activo ahora'; // TODO usar un estado real de conexión del otro participante
 
-    return otherParticipantStatus;
-  }, [currentChat]);
+    const otherParticipant = currentChat.participants.find((p) => p._id !== user?._id);
+    if (!otherParticipant) return '';
+
+    const isOtherUserActive = isUserActive(otherParticipant._id);
+    return isOtherUserActive ? 'Activo ahora' : 'Desconectado';
+  }, [currentChat, user?._id, isUserActive]);
 
   return (
     <div className="grid lg:grid-cols-[320px_1fr] gap-4 h-[calc(100vh-12rem)] lg:h-[calc(100vh-7rem)] animate-fade-in">
