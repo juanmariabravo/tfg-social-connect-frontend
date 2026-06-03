@@ -58,7 +58,7 @@ export default function PlansPage() {
   });
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const { user } = useAuth();
-  const ME = user?.id || '';
+  const ME = user?._id || '';
 
   useEffect(() => {
     fetchPlans();
@@ -229,8 +229,6 @@ export default function PlansPage() {
           if (!p || !p.creator) return null; // Safe guard against malformed data
           const author = authorOf(p.creator);
           const meJoined = p.attendees?.includes(ME) || false;
-          // Backend currently doesn't have a "declined" list, just toggle join
-
           return (
             <article
               key={p._id}
@@ -295,7 +293,7 @@ export default function PlansPage() {
                 <div className="mt-4 flex items-center gap-2 flex-wrap">
                   <Button
                     size="sm"
-                    variant={meJoined ? 'hero' : 'outline'}
+                    variant={meJoined ? 'hero' : 'outlineHero'}
                     className="rounded-xl"
                     onClick={() => toggleJoin(p._id)}
                   >
