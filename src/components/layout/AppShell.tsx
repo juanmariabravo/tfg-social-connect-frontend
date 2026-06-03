@@ -3,6 +3,7 @@ import { Home, Compass, CalendarHeart, MessageCircle, User, Bell } from 'lucide-
 import { Logo } from '../Logo';
 import { useSocket } from '../../context/SocketContext';
 import { useState, useEffect } from 'react';
+import { notificationService } from '@/services/social';
 
 const items = [
   { to: '/home', label: 'Inicio', icon: Home },
@@ -17,6 +18,21 @@ export function AppShell() {
   const path = location.pathname;
   const { socket } = useSocket();
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+
+  // Cargar contador inicial de notificaciones
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const { data } = await notificationService.getUnreadCount();
+        setUnreadNotificationsCount(data.count);
+      } catch (error) {
+        console.error('Error fetching unread count:', error);
+      }
+    };
+
+    fetchUnreadCount();
+  }, []);
 
   // Escuchar nuevos mensajes para activar el badge
   useEffect(() => {
@@ -29,10 +45,19 @@ export function AppShell() {
       }
     };
 
+    const handleNewNotification = () => {
+      // Si no estamos en la página de notificaciones, incrementamos el contador
+      if (!path.startsWith('/notifications')) {
+        setUnreadNotificationsCount((prev) => prev + 1);
+      }
+    };
+
     socket.on('new_message', handleNewMessage);
+    socket.on('new_notification', handleNewNotification);
 
     return () => {
       socket.off('new_message', handleNewMessage);
+      socket.off('new_notification', handleNewNotification);
     };
   }, [socket, path]);
 
@@ -40,6 +65,10 @@ export function AppShell() {
   useEffect(() => {
     if (path.startsWith('/chat')) {
       setHasUnreadChat(false);
+    }
+    if (path.startsWith('/notifications')) {
+      setUnreadNotificationsCount(0);
+      notificationService.markAllAsRead();
     }
   }, [path]);
 
@@ -77,9 +106,11 @@ export function AppShell() {
             className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all hover:bg-surface ${path.startsWith('/notifications') ? 'gradient-primary text-white shadow-card' : 'text-foreground'}`}
           >
             <Bell className="h-5 w-5" /> Notificaciones
-            <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
-              3
-            </span>
+            {unreadNotificationsCount > 0 && (
+              <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
+                {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+              </span>
+            )}
           </Link>
         </div>
       </aside>
@@ -89,7 +120,9 @@ export function AppShell() {
         <Logo size="sm" />
         <Link to="/notifications" className="relative rounded-full p-2 hover:bg-surface">
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary" />
+          {unreadNotificationsCount > 0 && (
+            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary" />
+          )}
         </Link>
       </header>
 
@@ -100,9 +133,11 @@ export function AppShell() {
           className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-white border border-border shadow-subtle hover:shadow-card transition-all"
         >
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white">
-            3
-          </span>
+          {unreadNotificationsCount > 0 && (
+            <span className="absolute top-1 right-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white">
+              {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+            </span>
+          )}
         </Link>
       </div>
 

@@ -36,3 +36,10 @@ export const planService = {
   addComment: (planId: string, text: string) => api.post(`/plans/${planId}/comments`, { text }),
   getComments: (planId: string) => api.get(`/plans/${planId}/comments`),
 };
+
+export const notificationService = {
+  getNotifications: () => api.get('/notifications'),
+  getUnreadCount: () => api.get('/notifications/unread-count'),
+  markAllAsRead: () => api.put('/notifications/read-all'),
+  markAsRead: (id: string) => api.put(`/notifications/${id}/read`),
+};
