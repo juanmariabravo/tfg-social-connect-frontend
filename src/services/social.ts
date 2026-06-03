@@ -21,3 +21,18 @@ export const friendService = {
   respondToRequest: (requestId: string, status: 'accepted' | 'rejected') =>
     api.put(`/friends/request/${requestId}`, { status }),
 };
+
+export const planService = {
+  getPlans: () => api.get('/plans'),
+  createPlan: (data: {
+    title: string;
+    description: string;
+    emojiIcon?: string;
+    datetime: string;
+    location: string;
+  }) => api.post('/plans', data),
+  joinPlan: (planId: string) => api.post(`/plans/${planId}/join`),
+  reactToPlan: (planId: string, emoji: string) => api.post(`/plans/${planId}/react`, { emoji }),
+  addComment: (planId: string, text: string) => api.post(`/plans/${planId}/comments`, { text }),
+  getComments: (planId: string) => api.get(`/plans/${planId}/comments`),
+};
