@@ -302,16 +302,26 @@ export default function PlansPage() {
                   </Button>
                   {p.attendees && p.attendees.length > 0 && (
                     <div className="ml-auto flex -space-x-2">
-                      {/* For now, just rendering generic avatars for attendees, we'd need them populated to show actual images/names */}
-                      {p.attendees.slice(0, 4).map((id, index) => {
-                        return (
-                          <Avatar key={id} className="h-7 w-7 border-2 border-background">
-                            <AvatarFallback className="bg-primary/20 text-[10px] font-medium text-primary">
-                              A{index}
-                            </AvatarFallback>
-                          </Avatar>
-                        );
-                      })}
+                      {p.attendees.slice(0, 5).map((a) => (
+                        <Avatar key={a} className="h-6 w-6 border-2 border-white">
+                          <AvatarImage
+                            src={plans.find((pl) => pl.creator._id === a)?.creator.profile?.avatar}
+                          />
+                          <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
+                            {plans.find((pl) => pl.creator._id === a)?.creator.name
+                              ? plans
+                                  .find((pl) => pl.creator._id === a)
+                                  ?.creator.name.substring(0, 2)
+                                  .toUpperCase()
+                              : '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
+                      {p.attendees.length > 5 && (
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground border-2 border-white">
+                          +{p.attendees.length - 5}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -322,9 +332,11 @@ export default function PlansPage() {
                 {p.comments?.map((c) => {
                   const isMe = c.user._id === ME;
                   const authorName = isMe ? 'Tú' : c.user.name;
+                  const authorAvatar = c.user.profile?.avatar;
                   return (
                     <div key={c._id} className="flex items-start gap-2">
                       <Avatar className="h-7 w-7">
+                        <AvatarImage src={authorAvatar} />
                         <AvatarFallback className="bg-primary/10 text-[10px] font-medium text-primary">
                           {authorName ? authorName.substring(0, 2).toUpperCase() : '?'}
                         </AvatarFallback>
