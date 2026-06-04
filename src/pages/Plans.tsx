@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/textarea';
@@ -338,26 +339,44 @@ export default function PlansPage() {
               </div>
 
               {/* Comments */}
-              <div className="border-t border-border bg-surface/50 p-4 space-y-3">
-                {p.comments?.map((c) => {
-                  const isMe = c.user._id === ME;
-                  const authorName = isMe ? 'Tú' : c.user.name;
-                  const authorAvatar = c.user.profile?.avatar;
-                  return (
-                    <div key={c._id} className="flex items-start gap-2">
-                      <Avatar className="h-7 w-7">
-                        <AvatarImage src={authorAvatar} />
-                        <AvatarFallback className="bg-primary/10 text-[10px] font-medium text-primary">
-                          {authorName ? authorName.substring(0, 2).toUpperCase() : '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="rounded-2xl bg-white border border-border px-3 py-2 text-sm shadow-subtle">
-                        <p className="text-xs font-semibold">{authorName}</p>
-                        <p>{c.text}</p>
+              <div className="border-t border-border bg-surface/30 p-4 space-y-4">
+                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                  {p.comments?.map((c) => {
+                    const isMe = c.user._id === ME;
+                    const authorName = isMe ? 'Tú' : c.user.name;
+                    const authorAvatar = c.user.profile?.avatar;
+
+                    return (
+                      <div
+                        key={c._id}
+                        className={cn(
+                          'flex items-end gap-2 max-w-[85%]',
+                          isMe ? 'ml-auto flex-row-reverse' : 'mr-auto'
+                        )}
+                      >
+                        <Avatar className="h-6 w-6 shrink-0 mb-1">
+                          <AvatarImage src={authorAvatar} />
+                          <AvatarFallback className="bg-primary/10 text-[8px] font-medium text-primary">
+                            {authorName ? authorName.substring(0, 2).toUpperCase() : '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div
+                          className={cn(
+                            'relative px-3 py-2 text-sm shadow-subtle break-words',
+                            isMe
+                              ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-none'
+                              : 'bg-white border border-border text-foreground rounded-2xl rounded-bl-none'
+                          )}
+                        >
+                          {!isMe && (
+                            <p className="text-[10px] font-bold opacity-70 mb-0.5">{authorName}</p>
+                          )}
+                          <p className="leading-tight">{c.text}</p>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
                 <div className="flex items-center gap-2">
                   <input
                     value={commentDrafts[p._id] ?? ''}
