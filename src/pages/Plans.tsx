@@ -22,6 +22,14 @@ interface Comment {
   createdAt: string;
 }
 
+interface Attendee {
+  _id: string;
+  name: string;
+  profile?: {
+    avatar?: string;
+  };
+}
+
 interface Plan {
   _id: string;
   creator: {
@@ -38,10 +46,11 @@ interface Plan {
   emojiIcon: string;
   datetime: string;
   location: string;
-  attendees: string[];
+  attendees: Attendee[];
   reactions: Record<string, string[]>;
   comments: Comment[];
   chatId: string;
+  createdAt: string;
 }
 
 const REACTIONS = ['❤️', '🔥', '😂', '😢', '👏'];
@@ -226,9 +235,9 @@ export default function PlansPage() {
 
       <div className="space-y-5">
         {plans?.map((p) => {
-          if (!p || !p.creator) return null; // Safe guard against malformed data
+          if (!p || !p.creator) return null;
           const author = authorOf(p.creator);
-          const meJoined = p.attendees?.includes(ME) || false;
+          const meJoined = p.attendees?.some((a) => a._id === ME) || false;
           return (
             <article
               key={p._id}
@@ -303,17 +312,10 @@ export default function PlansPage() {
                   {p.attendees && p.attendees.length > 0 && (
                     <div className="ml-auto flex -space-x-2">
                       {p.attendees.slice(0, 5).map((a) => (
-                        <Avatar key={a} className="h-6 w-6 border-2 border-white">
-                          <AvatarImage
-                            src={plans.find((pl) => pl.creator._id === a)?.creator.profile?.avatar}
-                          />
+                        <Avatar key={a._id} className="h-6 w-6 border-2 border-white">
+                          <AvatarImage src={a.profile?.avatar} />
                           <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
-                            {plans.find((pl) => pl.creator._id === a)?.creator.name
-                              ? plans
-                                  .find((pl) => pl.creator._id === a)
-                                  ?.creator.name.substring(0, 2)
-                                  .toUpperCase()
-                              : '?'}
+                            {a.name.substring(0, 2).toUpperCase() || '?'}
                           </AvatarFallback>
                         </Avatar>
                       ))}
