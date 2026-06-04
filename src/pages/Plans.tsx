@@ -8,6 +8,7 @@ import { planService } from '@/services/social';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip } from '@/components/ui/tooltip';
+import EmojiPicker from '@/components/ui/emoji-picker';
 
 interface Comment {
   _id: string;
@@ -189,11 +190,16 @@ export default function PlansPage() {
             <h2 className="font-semibold">Nuevo plan</h2>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-[80px_1fr]">
-            <Input
-              value={draft.emojiIcon}
-              onChange={(e) => setDraft({ ...draft, emojiIcon: e.target.value })}
-              className="h-12 rounded-lg text-center text-2xl"
-              maxLength={2}
+            <EmojiPicker
+              onEmojiSelect={(emoji) => setDraft({ ...draft, emojiIcon: emoji })}
+              trigger={
+                <Button
+                  variant="outline"
+                  className="h-12 w-full rounded-lg text-2xl flex items-center justify-center p-0"
+                >
+                  {draft.emojiIcon}
+                </Button>
+              }
             />
             <Input
               value={draft.title}
