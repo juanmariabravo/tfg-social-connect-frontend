@@ -17,7 +17,13 @@ export interface DatePickerProps {
   allowed_dates: 'only_past' | 'only_future' | 'past_today' | 'future_today' | 'all';
 }
 
-export function DatePicker({ selected, onSelect, className, placeholder, allowed_dates }: DatePickerProps) {
+export function DatePicker({
+  selected,
+  onSelect,
+  className,
+  placeholder,
+  allowed_dates,
+}: DatePickerProps) {
   const getCalendarRange = () => {
     const currentYear = new Date().getFullYear();
     switch (allowed_dates) {
