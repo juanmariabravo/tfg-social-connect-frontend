@@ -25,7 +25,7 @@ import EmojiPicker from '@/components/ui/emoji-picker';
 
 interface Participant {
   _id: string;
-  name: string;
+  username: string;
   profile?: {
     avatar?: string;
   };
@@ -284,7 +284,7 @@ export default function ChatPage() {
       chats.filter((chat) => {
         const chatName = chat.isGroup
           ? chat.name
-          : chat.participants.find((p) => p._id !== user?._id)?.name;
+          : chat.participants.find((p) => p._id !== user?._id)?.username;
         return chatName?.toLowerCase().includes(search.toLowerCase());
       }),
     [chats, search, user]
@@ -293,7 +293,7 @@ export default function ChatPage() {
   const getChatName = (chat: Chat) => {
     if (chat.isGroup) return chat.name || 'Grupo';
     const otherParticipant = chat.participants.find((p) => p._id !== user?._id);
-    return otherParticipant?.name || 'Usuario';
+    return otherParticipant?.username || 'Usuario';
   };
 
   const getChatAvatar = (chat: Chat) => {
@@ -506,7 +506,7 @@ export default function ChatPage() {
                         <div className="flex flex-col max-w-[75%]">
                           {!isMe && currentChat?.isGroup && (
                             <span className="text-[9px] font-bold text-gray-400 ml-2 mb-0.5">
-                              {m.sender.name.split(' ')[0]}
+                              {m.sender.username.split(' ')[0]}
                             </span>
                           )}
                           <div
