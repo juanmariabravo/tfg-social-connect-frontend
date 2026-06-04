@@ -44,7 +44,7 @@ export default function RegisterPage() {
     }
     try {
       const { data } = await api.post('/auth/register', {
-        name: formData.username,
+        username: formData.username,
         email: formData.email,
         password: formData.password,
         dateOfBirth: formData.dateOfBirth.toISOString().split('T')[0],
@@ -98,6 +98,7 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="h-12 rounded-lg"
+                required
               />
               <Input
                 type="password"
@@ -105,6 +106,7 @@ export default function RegisterPage() {
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 className="h-12 rounded-lg"
+                required
               />
               <div>
                 <DatePicker

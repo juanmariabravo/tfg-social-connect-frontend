@@ -18,12 +18,12 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<{ name?: string; bio?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{ username?: string; bio?: string }>({});
 
   const [photoView, setPhotoView] = useState<'real' | 'virtual'>('real');
   const [realPhoto, setRealPhoto] = useState<string>('');
   const [virtualPhoto, setVirtualPhoto] = useState<string>('');
-  const [name, setName] = useState('');
+  const [username, setUserName] = useState('');
   const [location, setLocation] = useState('');
   const [bio, setBio] = useState('');
   const [editing, setEditing] = useState(false);
@@ -48,13 +48,13 @@ export default function ProfilePage() {
             navigate('/onboarding', { replace: true });
             return;
           }
-
-          setName(data.displayName || user.name || '');
+          setUserName(data.username || user?.username || '');
           setBio(data.bio || '');
-          setLocation('');
+          setLocation(data.location || '');
           setInterests(
             data.interests?.map((i: any) => (i.emoji ? `${i.emoji} ${i.name}` : i.name)) || []
           );
+
           setPersonality(data.personality || null);
           setRealPhoto(data.photo || '');
           setVirtualPhoto(data.avatar || '');
@@ -85,7 +85,8 @@ export default function ProfilePage() {
       });
 
       await api.put(`/profiles/${user._id}`, {
-        displayName: name,
+        username,
+        location,
         bio,
         interests: interestsPayload,
       });
@@ -99,9 +100,9 @@ export default function ProfilePage() {
   };
 
   const validateProfile = (): boolean => {
-    if (!name.trim()) return false;
-    if (name.trim().length < 2) return false;
-    if (name.trim().length > 50) return false;
+    if (!username.trim()) return false;
+    if (username.trim().length < 2) return false;
+    if (username.trim().length > 50) return false;
     if (bio.length > 500) return false;
     return true;
   };
@@ -111,14 +112,14 @@ export default function ProfilePage() {
     if (saving) return;
 
     // Validar nombre
-    const newFieldErrors: { name?: string; bio?: string } = {};
+    const newFieldErrors: { username?: string; bio?: string } = {};
 
-    if (!name.trim()) {
-      newFieldErrors.name = 'El nombre es obligatorio';
-    } else if (name.trim().length < 2) {
-      newFieldErrors.name = 'El nombre debe tener al menos 2 caracteres';
-    } else if (name.trim().length > 50) {
-      newFieldErrors.name = 'El nombre no puede exceder 50 caracteres';
+    if (!username.trim()) {
+      newFieldErrors.username = 'El nombre de usuario es obligatorio';
+    } else if (username.trim().length < 2) {
+      newFieldErrors.username = 'El nombre de usuario debe tener al menos 2 caracteres';
+    } else if (username.trim().length > 50) {
+      newFieldErrors.username = 'El nombre de usuario no puede exceder 50 caracteres';
     }
 
     // Validar biografía
@@ -252,11 +253,6 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto p-6">
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
       <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-lg">
         <div className="h-32" style={{ background: activeColor }} />
         <div className="px-6 pb-6 -mt-12">
@@ -266,12 +262,9 @@ export default function ProfilePage() {
                 <AvatarImage
                   src={
                     photoView === 'real'
-                      ? realPhoto
-                        ? realPhoto
-                        : getGravatarUrl(user?.email || '', 200)
-                      : virtualPhoto
-                        ? virtualPhoto
-                        : getGravatarUrl(user?.email || '', 200)
+                      ? realPhoto ||
+                        'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'
+                      : virtualPhoto || getGravatarUrl(user?.email || '', 200)
                   }
                   alt={photoView === 'real' ? 'Foto real' : 'Foto virtual'}
                 />
@@ -282,7 +275,7 @@ export default function ProfilePage() {
                       : 'from-[#4ECDC4] to-[#A855F7]'
                   } text-white`}
                 >
-                  {user?.name?.charAt(0) || 'U'}
+                  {username?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
 
@@ -347,20 +340,20 @@ export default function ProfilePage() {
                 <div className="flex gap-2">
                   <div className="flex-1">
                     <Input
-                      value={name}
+                      value={username}
                       onChange={(e) => {
-                        setName(e.target.value);
+                        setUserName(e.target.value.replace(/\s/g, ''));
                         // Limpiar error del nombre cuando el usuario empieza a escribir
-                        if (fieldErrors.name) {
-                          setFieldErrors({ ...fieldErrors, name: undefined });
+                        if (fieldErrors.username) {
+                          setFieldErrors({ ...fieldErrors, username: undefined });
                         }
                       }}
                       className="h-11 rounded-lg flex-1"
-                      placeholder="Nombre"
+                      placeholder="Nombre de usuario"
                       required
                     />
-                    {fieldErrors.name && (
-                      <p className="text-red-500 text-sm mt-1">{fieldErrors.name}</p>
+                    {fieldErrors.username && (
+                      <p className="text-red-500 text-sm mt-1">{fieldErrors.username}</p>
                     )}
                   </div>
                 </div>
@@ -369,7 +362,7 @@ export default function ProfilePage() {
                   onChange={(e) => setLocation(e.target.value)}
                   className="h-11 rounded-lg"
                   placeholder="Ubicación"
-                />
+                />{' '}
                 <div>
                   <Textarea
                     value={bio}
@@ -389,16 +382,11 @@ export default function ProfilePage() {
                   )}
                   <p className="text-xs text-gray-500 mt-1">({bio.length}/500)</p>
                 </div>
-                {error && (
-                  <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-                    <p className="text-red-600 text-sm font-medium">{error}</p>
-                  </div>
-                )}
               </div>
             ) : (
               <>
                 <h1 className="text-2xl font-bold">
-                  {name || user?.name || 'Usuario'}, {getAgeFromDateOfBirth()}
+                  {username || 'Usuario'}, {getAgeFromDateOfBirth()}
                 </h1>
                 {location && <p className="text-sm text-gray-500">📍 {location}</p>}
                 {bio && <p className="mt-3 text-sm leading-relaxed">{bio}</p>}
@@ -407,7 +395,11 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-
+      {error && (
+        <div className="rounded-lg bg-red-50 border border-red-200 p-3">
+          <p className="text-red-600 text-sm font-medium">{error}</p>
+        </div>
+      )}
       <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
         <h2 className="text-lg font-semibold">Intereses</h2>
         <div className="mt-3 flex flex-wrap gap-2">

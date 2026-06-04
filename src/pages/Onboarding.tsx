@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/services/api';
 import { INTERESTS, EMOJIS, QUESTIONS } from '@/lib/data';
 import { PersonalityChart } from '@/components/PersonalityChart';
+import { getGravatarUrl } from '@/lib/gravatar';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -22,11 +23,15 @@ export default function OnboardingPage() {
   // Step 1: Profile State
   const [realPhoto, setRealPhoto] = useState('');
   const [virtualPhoto, setVirtualPhoto] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [userName, setUserName] = useState('');
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
-  const [profileErrors, setProfileErrors] = useState<{ name?: string; bio?: string }>({});
+  const [profileErrors, setProfileErrors] = useState<{
+    name?: string;
+    location?: string;
+    bio?: string;
+  }>({});
 
   // Step 2: Interests State
   const [pickedInterests, setPickedInterests] = useState<string[]>([]);
@@ -44,11 +49,11 @@ export default function OnboardingPage() {
       try {
         const { data } = await api.get(`/profiles/${user._id}`);
         if (data) {
-          setDisplayName(data.displayName || user.name || '');
+          setUserName(data.username || '');
           setBio(data.bio || '');
           setRealPhoto(data.photo || '');
           setVirtualPhoto(data.avatar || '');
-
+          setLocation(data.location || '');
           if (data.interests) {
             const interestsStrings = data.interests.map((i: any) =>
               i.emoji ? `${i.emoji} ${i.name}` : i.name
@@ -57,7 +62,7 @@ export default function OnboardingPage() {
           }
 
           // Determinar en qué paso empezar si ya hay datos
-          if (data.displayName && data.bio && (!data.interests || data.interests.length < 3)) {
+          if (userName && location && bio && (!data.interests || data.interests.length < 3)) {
             setStep(2);
           } else if (data.interests && data.interests.length >= 3) {
             setStep(3);
@@ -74,13 +79,16 @@ export default function OnboardingPage() {
 
   // --- Step 1 Actions ---
   const validateProfile = (): boolean => {
-    const newErrors: { name?: string; bio?: string } = {};
-    if (!displayName.trim()) newErrors.name = 'El nombre es obligatorio';
-    else if (displayName.trim().length < 2) newErrors.name = 'Mínimo 2 caracteres';
+    const newErrors: { name?: string; bio?: string; location?: string } = {};
+    if (!userName.trim()) newErrors.name = 'El nombre es obligatorio';
+    else if (userName.trim().length < 2) newErrors.name = 'Mínimo 2 caracteres';
+
+    if (!location.trim()) newErrors.location = 'La ubicación es obligatoria';
+    else if (location.trim().length > 100) newErrors.location = 'Máximo 100 caracteres';
 
     if (!bio.trim()) newErrors.bio = 'La biografía es obligatoria';
     else if (bio.length > 500) newErrors.bio = 'Máximo 500 caracteres';
-
+    console.log('Profile validation errors:', newErrors);
     setProfileErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -91,10 +99,13 @@ export default function OnboardingPage() {
     setError('');
     try {
       await api.put(`/profiles/${user?._id}`, {
-        displayName: displayName.trim(),
-        bio,
-        photo: realPhoto,
-        avatar: virtualPhoto,
+        username: userName.trim(),
+        bio: bio.trim(),
+        photo:
+          realPhoto ||
+          'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+        avatar: virtualPhoto || getGravatarUrl(user?.email || '', 200),
+        location: location.trim(),
       });
       setStep(2);
     } catch (err: any) {
@@ -254,7 +265,7 @@ export default function OnboardingPage() {
                 className="mt-6 w-full bg-white"
                 onClick={() => setPhotoModalOpen(true)}
               >
-                Gestionar fotos
+                Añadir fotos de perfil (real y virtual)
               </Button>
             </div>
 
@@ -262,13 +273,25 @@ export default function OnboardingPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
                 <Input
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value.replace(/\s/g, ''))}
                   className="h-11"
                   placeholder="Cómo quieres que te llamen"
                 />
                 {profileErrors.name && (
                   <p className="text-red-500 text-xs mt-1">{profileErrors.name}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ubicación</label>
+                <Input
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="h-11"
+                  placeholder="Dónde vives o tu ciudad favorita"
+                />
+                {profileErrors.location && (
+                  <p className="text-red-500 text-xs mt-1">{profileErrors.location}</p>
                 )}
               </div>
               <div>

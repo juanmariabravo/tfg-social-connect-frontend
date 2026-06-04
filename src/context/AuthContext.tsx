@@ -3,7 +3,7 @@ import api from '../services/api';
 
 interface User {
   _id: string;
-  name: string;
+  username: string;
   email: string;
   [key: string]: any;
 }
