@@ -5,6 +5,7 @@ import { useAuth } from './AuthContext';
 interface SocketContextType {
   socket: Socket | null;
   isConnected: boolean;
+  activeUsers: Set<string>;
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -15,6 +16,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [activeUsers, setActiveUsers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let newSocket: Socket | null = null;
@@ -35,10 +37,31 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       newSocket.on('disconnect', () => {
         //console.log('Disconnected from WebSocket server');
         setIsConnected(false);
+        setActiveUsers(new Set());
       });
 
       newSocket.on('connect_error', (err) => {
         console.error('Socket connection error:', err.message);
+      });
+
+      // Manejar estados de usuarios
+      newSocket.on(
+        'user_status_change',
+        (data: { userId: string; status: 'online' | 'offline' }) => {
+          setActiveUsers((prev) => {
+            const newSet = new Set(prev);
+            if (data.status === 'online') {
+              newSet.add(data.userId);
+            } else {
+              newSet.delete(data.userId);
+            }
+            return newSet;
+          });
+        }
+      );
+
+      newSocket.on('initial_active_users', (userIds: string[]) => {
+        setActiveUsers(new Set(userIds));
       });
 
       setSocket(newSocket);
@@ -48,6 +71,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         socket.disconnect();
         setSocket(null);
         setIsConnected(false);
+        setActiveUsers(new Set());
       }
     }
 
@@ -60,7 +84,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated]);
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>{children}</SocketContext.Provider>
+    <SocketContext.Provider value={{ socket, isConnected, activeUsers }}>
+      {children}
+    </SocketContext.Provider>
   );
 }
 
