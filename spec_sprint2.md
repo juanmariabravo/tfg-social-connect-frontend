@@ -47,7 +47,7 @@ El objetivo principal es implementar las vistas de login, registro y perfil de u
 
 ### 3.2 Registro (/register)
 - **Ruta:** `/register`
-- **Campos:** name, email, contraseña, dateOfBirth
+- **Campos:** username, email, contraseña, dateOfBirth
 - **Funcionalidad:**
   - Enviar datos a POST /api/auth/register
   - Almacenar JWT en localStorage
@@ -58,10 +58,11 @@ El objetivo principal es implementar las vistas de login, registro y perfil de u
 - **Ruta:** `/profile`
 - **Funcionalidad:**
   - Obtener datos del perfil con GET /api/profiles/:userId
-  - **Sistema de Fotos Doble:** Alternancia entre Foto Real (User Photo) y Foto Virtual (Avatar).
+  - **Sistema de Fotos Doble:** Alternancia entre Foto Real y Foto Virtual (Avatar).
+    - **Lógica de fotos por defecto:** Si no hay foto real, se usa un placeholder de Wikimedia. Si no hay avatar virtual, se usa Gravatar basado en el email.
   - **Edición Integrada:** Botón para activar modo edición en la misma página.
-  - Mostrar datos: displayName, bio, intereses (con emojis).
-  - Mostrar atributos de personalidad mediante un gráfico de barras horizontales (`PersonalityChart`).
+  - Mostrar datos: username, bio, location, intereses (con emojis).
+  - Mostrar atributos de personalidad (Big Five) mediante un gráfico de barras horizontales (`PersonalityChart`).
   - Gestión de fotos mediante `PhotoUploadModal`.
 - **Estados:** loading, loaded, error
 
@@ -70,7 +71,7 @@ El objetivo principal es implementar las vistas de login, registro y perfil de u
 - **Descripción:** Encuesta dinámica inicial para configurar el perfil tras el primer registro.
 - **Trigger:** Se muestra automáticamente si `onboardingCompleted` es `false`.
 - **Flujo:**
-  1. Configuración del perfil: nombre, descripción y foto (real y avatar).
+  1. Configuración del perfil: username, ubicación, descripción y fotos.
   2. Elegir intereses (tags predefinidos + personalizados). Como mínimo 3 intereses.
   3. Test de personalidad (Big Five traits).
 - **Funcionalidad:**
