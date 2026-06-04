@@ -110,6 +110,8 @@ export default function RegisterPage() {
                 <DatePicker
                   selected={formData.dateOfBirth}
                   onSelect={(date) => setFormData({ ...formData, dateOfBirth: date || null })}
+                  placeholder="Fecha de nacimiento"
+                  allowed_dates="only_past"
                 />
               </div>
               <div className="relative">
