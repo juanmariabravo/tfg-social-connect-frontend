@@ -15,7 +15,7 @@ interface Comment {
   _id: string;
   user: {
     _id: string;
-    name: string;
+    username: string;
     email: string;
     profile?: {
       avatar?: string;
@@ -28,7 +28,7 @@ interface Comment {
 
 interface Attendee {
   _id: string;
-  name: string;
+  username: string;
   profile?: {
     avatar?: string;
   };
@@ -38,7 +38,7 @@ interface Plan {
   _id: string;
   creator: {
     _id: string;
-    name: string;
+    username: string;
     email: string;
     profile?: {
       avatar?: string;
@@ -156,8 +156,8 @@ export default function PlansPage() {
   };
 
   const authorOf = (creatorData: Plan['creator']) => {
-    if (creatorData._id === ME) return { name: 'Tú', avatar: creatorData.profile?.avatar };
-    return { name: creatorData.name, avatar: creatorData.profile?.avatar };
+    if (creatorData._id === ME) return { username: 'Tú', avatar: creatorData.profile?.avatar };
+    return { username: creatorData.username, avatar: creatorData.profile?.avatar };
   };
 
   const formatDate = (isoString: string) => {
@@ -255,12 +255,12 @@ export default function PlansPage() {
                   <Avatar className="h-11 w-11">
                     <AvatarImage src={author.avatar} />
                     <AvatarFallback className="bg-primary/10 text-primary">
-                      {author.name ? author.name.substring(0, 2).toUpperCase() : '?'}
+                      {author.username ? author.username.substring(0, 2).toUpperCase() : '?'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm">
-                      <span className="font-semibold">{author.name}</span> propone un plan
+                      <span className="font-semibold">{author.username}</span> propone un plan
                     </p>
                     <p className="text-xs text-muted-foreground">{formatDate(p.createdAt)}</p>
                   </div>
@@ -319,11 +319,11 @@ export default function PlansPage() {
                   {p.attendees && p.attendees.length > 0 && (
                     <div className="ml-auto flex -space-x-2">
                       {p.attendees.slice(0, 5).map((a) => (
-                        <Tooltip key={a._id} content={a.name}>
+                        <Tooltip key={a._id} content={a.username}>
                           <Avatar className="h-6 w-6 border-2 border-white">
                             <AvatarImage src={a.profile?.avatar} />
                             <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
-                              {a.name.substring(0, 2).toUpperCase() || '?'}
+                              {a.username.substring(0, 2).toUpperCase() || '?'}
                             </AvatarFallback>
                           </Avatar>
                         </Tooltip>
@@ -343,7 +343,7 @@ export default function PlansPage() {
                 <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
                   {p.comments?.map((c) => {
                     const isMe = c.user._id === ME;
-                    const authorName = isMe ? 'Tú' : c.user.name;
+                    const authorName = isMe ? 'Tú' : c.user.username;
                     const authorAvatar = c.user.profile?.avatar;
 
                     return (

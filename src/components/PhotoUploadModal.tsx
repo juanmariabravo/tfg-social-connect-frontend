@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/Button';
 import { X, Upload, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 
@@ -30,6 +30,17 @@ export default function PhotoManagementModal({
   const [virtualPhotoPreview, setVirtualPhotoPreview] = useState(currentVirtualPhoto);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ real?: string; virtual?: string }>({});
+
+  // Sincronizar estado con props cuando el modal se abre
+  useEffect(() => {
+    if (isOpen) {
+      setRealPhotoUrl(currentRealPhoto);
+      setVirtualPhotoUrl(currentVirtualPhoto);
+      setRealPhotoPreview(currentRealPhoto);
+      setVirtualPhotoPreview(currentVirtualPhoto);
+      setErrors({});
+    }
+  }, [isOpen, currentRealPhoto, currentVirtualPhoto]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'real' | 'virtual') => {
     const file = e.target.files?.[0];
@@ -112,10 +123,6 @@ export default function PhotoManagementModal({
     try {
       await onSave(realPhotoUrl || null, virtualPhotoUrl || null);
       onClose();
-      setRealPhotoUrl('');
-      setVirtualPhotoUrl('');
-      setRealPhotoPreview('');
-      setVirtualPhotoPreview('');
       setErrors({});
     } catch (err) {
     } finally {
@@ -124,10 +131,6 @@ export default function PhotoManagementModal({
   };
 
   const handleClose = () => {
-    setRealPhotoUrl('');
-    setVirtualPhotoUrl('');
-    setRealPhotoPreview('');
-    setVirtualPhotoPreview('');
     setErrors({});
     onClose();
   };
