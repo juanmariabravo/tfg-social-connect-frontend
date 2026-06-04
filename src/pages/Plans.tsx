@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, MapPin, Calendar, Check, X, Send, Sparkles } from 'lucide-react';
+import { DatePicker } from '@/components/ui/DatePicker';
+import { Plus, MapPin, Calendar, Check, Send, Sparkles } from 'lucide-react';
 import { planService } from '@/services/social';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tooltip } from '@/components/ui/tooltip';
 
 interface Comment {
   _id: string;
@@ -62,7 +64,7 @@ export default function PlansPage() {
     emojiIcon: '✨',
     title: '',
     description: '',
-    datetime: '',
+    datetime: null as Date | null,
     location: '',
   });
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
@@ -125,13 +127,12 @@ export default function PlansPage() {
   const createPlan = async () => {
     if (!draft.title.trim()) return;
 
-    let validDatetime = '';
-    try {
-      validDatetime = new Date(draft.datetime).toISOString();
-    } catch (e) {
+    if (!draft.datetime) {
       console.error('Invalid date');
       return;
     }
+
+    const validDatetime = draft.datetime.toISOString();
 
     try {
       await planService.createPlan({
@@ -145,7 +146,7 @@ export default function PlansPage() {
       // Refetch to get the fully populated plan from backend
       await fetchPlans();
 
-      setDraft({ emojiIcon: '✨', title: '', description: '', datetime: '', location: '' });
+      setDraft({ emojiIcon: '✨', title: '', description: '', datetime: null, location: '' });
       setCreating(false);
     } catch (error) {
       console.error('Error creating plan:', error);
@@ -208,12 +209,11 @@ export default function PlansPage() {
             className="mt-3 rounded-lg min-h-20"
           />
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <Input
-              type="datetime-local"
-              value={draft.datetime}
-              onChange={(e) => setDraft({ ...draft, datetime: e.target.value })}
-              placeholder="📅 Cuándo"
-              className="h-11 rounded-lg"
+            <DatePicker
+              selected={draft.datetime || undefined}
+              onSelect={(date) => setDraft({ ...draft, datetime: date })}
+              placeholder="Cuándo"
+              allowed_dates="future_today"
             />
             <Input
               value={draft.location}
@@ -312,12 +312,14 @@ export default function PlansPage() {
                   {p.attendees && p.attendees.length > 0 && (
                     <div className="ml-auto flex -space-x-2">
                       {p.attendees.slice(0, 5).map((a) => (
-                        <Avatar key={a._id} className="h-6 w-6 border-2 border-white">
-                          <AvatarImage src={a.profile?.avatar} />
-                          <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
-                            {a.name.substring(0, 2).toUpperCase() || '?'}
-                          </AvatarFallback>
-                        </Avatar>
+                        <Tooltip key={a._id} content={a.name}>
+                          <Avatar className="h-6 w-6 border-2 border-white">
+                            <AvatarImage src={a.profile?.avatar} />
+                            <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
+                              {a.name.substring(0, 2).toUpperCase() || '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Tooltip>
                       ))}
                       {p.attendees.length > 5 && (
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground border-2 border-white">
