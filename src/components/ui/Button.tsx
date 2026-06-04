@@ -19,6 +19,8 @@ const buttonVariants = cva(
         destructive:
           'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40',
         hero: 'bg-gradient-to-r from-[#FF6B6B] to-[#FF8E8E] text-white hover:opacity-90 transition-opacity',
+        outlineHero:
+          'border-2 border-[#FF6B6B] text-[#FF6B6B] bg-background hover:bg-[#FF6B6B]/10 transition-colors',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
