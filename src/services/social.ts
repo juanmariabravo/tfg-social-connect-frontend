@@ -43,3 +43,9 @@ export const notificationService = {
   markAllAsRead: () => api.put('/notifications/read-all'),
   markAsRead: (id: string) => api.put(`/notifications/${id}/read`),
 };
+
+export const profileService = {
+  getProfile: (userId: string) => api.get(`/profiles/${userId}`),
+  updateProfile: (userId: string, data: any) => api.put(`/profiles/${userId}`, data),
+  getRandomProfiles: (limit = 10) => api.get('/profiles/random', { params: { limit } }),
+};
