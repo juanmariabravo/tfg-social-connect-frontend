@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -60,6 +62,7 @@ interface Plan {
 const REACTIONS = ['❤️', '🔥', '😂', '😢', '👏'];
 
 export default function PlansPage() {
+  const { id } = useParams();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState({
@@ -75,12 +78,26 @@ export default function PlansPage() {
 
   useEffect(() => {
     fetchPlans();
-  }, []);
+  }, [id]);
 
   const fetchPlans = async () => {
     try {
       const res = await planService.getPlans();
-      setPlans(res.data);
+      let allPlans = res.data as Plan[];
+
+      // if an ID is present, move that plan to the top
+      if (id) {
+        const targetIdx = allPlans.findIndex((p) => p._id === id);
+        if (targetIdx !== -1) {
+          const targetPlan = allPlans[targetIdx];
+          allPlans.splice(targetIdx, 1);
+          allPlans = [targetPlan, ...allPlans];
+        } else {
+          toast.error('No se ha encontrado el plan especificado');
+        }
+      }
+
+      setPlans(allPlans);
     } catch (error) {
       console.error('Error fetching plans:', error);
     }
@@ -245,10 +262,17 @@ export default function PlansPage() {
           if (!p || !p.creator) return null;
           const author = authorOf(p.creator);
           const meJoined = p.attendees?.some((a) => a._id === ME) || false;
+          const isTargeted = p._id === id;
+
           return (
             <article
               key={p._id}
-              className="rounded-2xl border border-border bg-card shadow-subtle overflow-hidden"
+              className={cn(
+                'rounded-2xl border bg-card shadow-subtle overflow-hidden transition-all duration-500',
+                isTargeted
+                  ? 'border-primary ring-2 ring-primary/20 scale-[1.02] z-10'
+                  : 'border-border'
+              )}
             >
               <div className="p-5">
                 <div className="flex items-center gap-3">

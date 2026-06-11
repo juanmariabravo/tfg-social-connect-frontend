@@ -68,7 +68,6 @@ export function AppShell() {
     };
   }, [socket, path]);
 
-
   return (
     <div className="min-h-screen bg-surface">
       {/* Desktop sidebar */}
