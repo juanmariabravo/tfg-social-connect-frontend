@@ -156,8 +156,7 @@ export default function NotificationsPage() {
 
     // Navegación basada en el tipo de notificación
     if (notification.type.startsWith('plan_')) {
-      // navigate('/plans/' + notification.referenceId); // A la página del plan específico TODO
-      navigate('/plans');
+      navigate('/plans/' + notification.referenceId);
     } else if (notification.type.startsWith('friend_')) {
       navigate('/profile'); // A la pestaña de amigos
     }

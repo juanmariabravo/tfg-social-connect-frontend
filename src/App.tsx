@@ -90,6 +90,7 @@ export default function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/plans" element={<PlansPage />} />
+        <Route path="/plans/:id" element={<PlansPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/chat/:chatId" element={<ChatPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
