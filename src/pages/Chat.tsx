@@ -1,5 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -54,11 +54,16 @@ interface Chat {
   unreadCount?: number;
 }
 
+interface ContextType {
+  setHasUnreadChat: (hasUnread: boolean) => void;
+}
+
 export default function ChatPage() {
   const { chatId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { socket } = useSocket();
+  const { setHasUnreadChat } = useOutletContext<ContextType>();
 
   const [chats, setChats] = useState<Chat[]>([]);
   const [loadingChats, setLoadingChats] = useState(true);
@@ -78,6 +83,11 @@ export default function ChatPage() {
   const messagesContainerRef = useRef<HTMLDivElement>(null); // para scroll infinito y mantener la posición al cargar más mensajes
   const prevScrollHeight = useRef<number | null>(null);
   const currentChatRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const hasAnyUnread = chats.some((c) => (c.unreadCount || 0) > 0);
+    setHasUnreadChat(hasAnyUnread);
+  }, [chats, setHasUnreadChat]);
 
   const scrollToBottom = (behavior: 'auto' | 'smooth' = 'smooth') => {
     // Usamos setTimeout para esperar al renderizado y actualización de scrollHeight

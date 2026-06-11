@@ -3,7 +3,7 @@ import { Home, Compass, CalendarHeart, MessageCircle, User, Bell } from 'lucide-
 import { Logo } from '../Logo';
 import { useSocket } from '../../context/SocketContext';
 import { useState, useEffect } from 'react';
-import { notificationService } from '@/services/social';
+import { notificationService, chatService } from '@/services/social';
 
 const items = [
   { to: '/home', label: 'Inicio', icon: Home },
@@ -20,21 +20,31 @@ export function AppShell() {
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
-  // Cargar contador inicial de notificaciones
-  useEffect(() => {
-    const fetchUnreadCount = async () => {
-      try {
-        const { data } = await notificationService.getUnreadCount();
-        setUnreadNotificationsCount(data.count);
-      } catch (error) {
-        console.error('Error fetching unread count:', error);
-      }
-    };
+  const fetchUnreadChatStatus = async () => {
+    try {
+      const { data } = await chatService.getChats();
+      const hasAnyUnread = data.some((c: any) => (c.unreadCount || 0) > 0);
+      setHasUnreadChat(hasAnyUnread);
+    } catch (error) {
+      console.error('Error fetching chat unread status:', error);
+    }
+  };
 
+  const fetchUnreadCount = async () => {
+    try {
+      const { data } = await notificationService.getUnreadCount();
+      setUnreadNotificationsCount(data.count);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
+  // Cargar contadores iniciales
+  useEffect(() => {
     fetchUnreadCount();
+    fetchUnreadChatStatus();
   }, []);
 
-  // Escuchar nuevos mensajes para activar el badge
+  // Escuchar nuevos eventos para (des)activar los badges
   useEffect(() => {
     if (!socket) return;
 
@@ -46,10 +56,7 @@ export function AppShell() {
     };
 
     const handleNewNotification = () => {
-      // Si no estamos en la página de notificaciones, incrementamos el contador
-      if (!path.startsWith('/notifications')) {
-        setUnreadNotificationsCount((prev) => prev + 1);
-      }
+      setUnreadNotificationsCount((prev) => prev + 1);
     };
 
     socket.on('new_message', handleNewMessage);
@@ -61,16 +68,6 @@ export function AppShell() {
     };
   }, [socket, path]);
 
-  // Limpiar el badge cuando el usuario entra a la sección de chat
-  useEffect(() => {
-    if (path.startsWith('/chat')) {
-      setHasUnreadChat(false);
-    }
-    if (path.startsWith('/notifications')) {
-      setUnreadNotificationsCount(0);
-      notificationService.markAllAsRead();
-    }
-  }, [path]);
 
   return (
     <div className="min-h-screen bg-surface">
@@ -143,7 +140,14 @@ export function AppShell() {
 
       <main className="lg:pl-[260px] pb-20 lg:pb-0 animate-fade-in">
         <div className="mx-auto max-w-5xl px-4 py-6 lg:px-10 lg:py-10">
-          <Outlet />
+          <Outlet
+            context={{
+              fetchUnreadCount,
+              setUnreadNotificationsCount,
+              fetchUnreadChatStatus,
+              setHasUnreadChat,
+            }}
+          />
         </div>
       </main>
 
