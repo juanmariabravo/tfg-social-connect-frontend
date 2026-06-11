@@ -15,7 +15,7 @@ interface NewChatModalProps {
 
 interface Friend {
   _id: string;
-  name: string;
+  username: string;
   email: string;
   profile?: {
     photo?: string;
@@ -58,7 +58,7 @@ export default function NewChatModal({ isOpen, onClose, onChatCreated }: NewChat
   };
 
   const filteredFriends = friends.filter((f) =>
-    f.name.toLowerCase().includes(search.toLowerCase())
+    f.username.toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleFriend = (id: string) => {
@@ -89,7 +89,7 @@ export default function NewChatModal({ isOpen, onClose, onChatCreated }: NewChat
         isGroup,
         name: isGroup
           ? groupName || 'Nuevo Grupo'
-          : friends.find((f) => f._id === selectedFriends[0])?.name || 'undefined',
+          : friends.find((f) => f._id === selectedFriends[0])?.username || 'undefined',
         emojiIcon: isGroup ? finalEmoji : undefined,
       });
       onChatCreated(data._id);
@@ -263,7 +263,7 @@ export default function NewChatModal({ isOpen, onClose, onChatCreated }: NewChat
                           <Avatar className="h-12 w-12 rounded-2xl border-2 border-white shadow-sm transition-transform group-hover:scale-105">
                             <AvatarImage src={friend.profile?.avatar || friend.profile?.photo} />
                             <AvatarFallback className="gradient-soft text-primary font-bold">
-                              {friend.name.charAt(0)}
+                              {friend.username.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           {isSelected && (
@@ -273,7 +273,7 @@ export default function NewChatModal({ isOpen, onClose, onChatCreated }: NewChat
                           )}
                         </div>
                         <div className="flex-1 text-left min-w-0">
-                          <p className="font-bold text-sm text-gray-900 truncate">{friend.name}</p>
+                          <p className="font-bold text-sm text-gray-900 truncate">{friend.username}</p>
                           <p className="text-xs text-gray-400 truncate">{friend.email}</p>
                         </div>
                       </button>
