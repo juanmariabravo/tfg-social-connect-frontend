@@ -273,7 +273,9 @@ export default function NewChatModal({ isOpen, onClose, onChatCreated }: NewChat
                           )}
                         </div>
                         <div className="flex-1 text-left min-w-0">
-                          <p className="font-bold text-sm text-gray-900 truncate">{friend.username}</p>
+                          <p className="font-bold text-sm text-gray-900 truncate">
+                            {friend.username}
+                          </p>
                           <p className="text-xs text-gray-400 truncate">{friend.email}</p>
                         </div>
                       </button>
