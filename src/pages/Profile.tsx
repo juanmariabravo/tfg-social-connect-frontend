@@ -8,9 +8,10 @@ import { PersonalityChart } from '../components/PersonalityChart';
 import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/avatar';
 import PhotoManagementModal from '../components/PhotoUploadModal';
 import { EMOJIS, INTERESTS } from '../lib/data';
-import { Camera, Sparkles, Pencil, X, Check, Plus, Loader2 } from 'lucide-react';
+import { Camera, Sparkles, Pencil, X, Check, Plus, Loader2, Users } from 'lucide-react';
 import { getGravatarUrl } from '../lib/gravatar';
 import api from '../services/api';
+import { friendService } from '../services/social';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ export default function ProfilePage() {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ username?: string; bio?: string }>({});
 
+  const [friendsCount, setFriendsCount] = useState(0);
   const [photoView, setPhotoView] = useState<'real' | 'virtual'>('real');
   const [realPhoto, setRealPhoto] = useState<string>('');
   const [virtualPhoto, setVirtualPhoto] = useState<string>('');
@@ -59,6 +61,9 @@ export default function ProfilePage() {
           setRealPhoto(data.photo || '');
           setVirtualPhoto(data.avatar || '');
         }
+
+        const { data: friends } = await friendService.getFriends();
+        setFriendsCount(friends.length);
       } catch (err) {
         setError('Error al cargar el perfil');
       } finally {
@@ -400,6 +405,27 @@ export default function ProfilePage() {
           <p className="text-red-600 text-sm font-medium">{error}</p>
         </div>
       )}
+
+      {/* Sección de Amigos */}
+      {!editing && (
+        <div className="grid grid-cols-1 gap-4">
+          <button
+            onClick={() => navigate('/friends')}
+            className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-[#FF6B6B]/30 transition-all group text-left w-full"
+          >
+            <div className="h-12 w-12 rounded-xl bg-rose-50 flex items-center justify-center group-hover:bg-[#FF6B6B] transition-colors">
+              <Users className="h-6 w-6 text-[#FF6B6B] group-hover:text-white" />
+            </div>
+            <div>
+              <span className="block text-sm font-bold text-gray-900">Mis Amigos</span>
+              <span className="text-xs text-gray-500 font-medium">
+                {friendsCount} {friendsCount === 1 ? 'amigo conectado' : 'amigos conectados'}
+              </span>
+            </div>
+          </button>
+        </div>
+      )}
+
       <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
         <h2 className="text-lg font-semibold">Intereses</h2>
         <div className="mt-3 flex flex-wrap gap-2">

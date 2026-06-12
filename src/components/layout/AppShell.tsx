@@ -1,7 +1,8 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Home, Compass, CalendarHeart, MessageCircle, User, Bell } from 'lucide-react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Compass, CalendarHeart, MessageCircle, User, Bell, LogOut } from 'lucide-react';
 import { Logo } from '../Logo';
 import { useSocket } from '../../context/SocketContext';
+import { useAuth } from '../../context/AuthContext';
 import { useState, useEffect } from 'react';
 import { notificationService, chatService } from '@/services/social';
 
@@ -15,10 +16,17 @@ const items = [
 
 export function AppShell() {
   const location = useLocation();
+  const navigate = useNavigate();
   const path = location.pathname;
   const { socket } = useSocket();
+  const { logout } = useAuth();
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const fetchUnreadChatStatus = async () => {
     try {
@@ -108,18 +116,32 @@ export function AppShell() {
               </span>
             )}
           </Link>
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-red-600 transition-all hover:bg-red-50"
+          >
+            <LogOut className="h-5 w-5" /> Cerrar Sesión
+          </button>
         </div>
       </aside>
 
       {/* Mobile bar */}
       <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-white px-4 lg:hidden">
         <Logo size="sm" />
-        <Link to="/notifications" className="relative rounded-full p-2 hover:bg-surface">
-          <Bell className="h-5 w-5" />
-          {unreadNotificationsCount > 0 && (
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary" />
-          )}
-        </Link>
+        <div className="flex items-center gap-1">
+          <Link to="/notifications" className="relative rounded-full p-2 hover:bg-surface">
+            <Bell className="h-5 w-5" />
+            {unreadNotificationsCount > 0 && (
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary" />
+            )}
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="rounded-full p-2 text-muted-foreground hover:bg-surface hover:text-red-600 transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+          </button>
+        </div>
       </header>
 
       {/* Desktop top-right notifications shortcut */}

@@ -11,6 +11,7 @@ import ExplorePage from './pages/Explore';
 import PlansPage from './pages/Plans';
 import ChatPage from './pages/Chat';
 import NotificationsPage from './pages/Notifications';
+import FriendsPage from './pages/Friends';
 import api from './services/api';
 import { Loader2 } from 'lucide-react';
 
@@ -95,6 +96,7 @@ export default function App() {
         <Route path="/chat/:chatId" element={<ChatPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/friends" element={<FriendsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
