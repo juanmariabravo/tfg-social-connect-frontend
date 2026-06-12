@@ -84,6 +84,29 @@ export default function ChatPage() {
   const prevScrollHeight = useRef<number | null>(null);
   const currentChatRef = useRef<string | null>(null);
 
+  // Manejar creación de chat desde query param (ej: desde lista de amigos)
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const userIdParam = query.get('userId');
+
+    if (userIdParam) {
+      const createOrOpenChat = async () => {
+        try {
+          const { data } = await chatService.createChat({
+            participants: [userIdParam],
+            isGroup: false,
+          });
+          // Redirigir a la URL del chat sin el query param
+          navigate(`/chat/${data._id}`, { replace: true });
+        } catch (error) {
+          console.error('Error opening chat from query param:', error);
+          navigate('/chat', { replace: true });
+        }
+      };
+      createOrOpenChat();
+    }
+  }, [navigate]);
+
   useEffect(() => {
     const hasAnyUnread = chats.some((c) => (c.unreadCount || 0) > 0);
     setHasUnreadChat(hasAnyUnread);

@@ -20,6 +20,7 @@ export const friendService = {
   sendFriendRequest: (userId: string) => api.post(`/friends/request/${userId}`),
   respondToRequest: (requestId: string, status: 'accepted' | 'rejected') =>
     api.put(`/friends/request/${requestId}`, { status }),
+  deleteFriend: (friendId: string) => api.delete(`/friends/${friendId}`),
 };
 
 export const planService = {
