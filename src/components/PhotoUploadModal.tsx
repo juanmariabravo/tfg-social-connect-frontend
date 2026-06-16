@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button } from './ui/Button';
+import { Button } from '@/components/ui/Button';
 import { X, Upload, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 
 interface PhotoManagementModalProps {

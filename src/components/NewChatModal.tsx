@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { X, Search, Users, Smile, Loader2, MessageSquare, Check, User } from 'lucide-react';
-import { Button } from './ui/Button';
-import { friendService, chatService } from '../services/social';
-import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { Input } from './ui/Input';
-import { EMOJIS } from '../lib/data';
-import EmojiPicker from './ui/emoji-picker';
+import { Button } from '@/components/ui/Button';
+import { friendService, chatService } from '@/services/social';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/Input';
+import { EMOJIS } from '@/lib/data';
+import EmojiPicker from '@/components/ui/emoji-picker';
 
 interface NewChatModalProps {
   isOpen: boolean;

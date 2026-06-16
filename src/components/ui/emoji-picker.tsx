@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/Input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import emojis from '../../lib/emojis.json';
+import emojis from '@/lib/emojis.json';
 
 interface EmojiPickerProps {
   onEmojiSelect: (emoji: string) => void;
