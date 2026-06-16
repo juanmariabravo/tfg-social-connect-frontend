@@ -8,7 +8,7 @@ import { PersonalityChart } from '../components/PersonalityChart';
 import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/avatar';
 import PhotoManagementModal from '../components/PhotoUploadModal';
 import { EMOJIS, INTERESTS } from '../lib/data';
-import { Camera, Sparkles, Pencil, X, Check, Plus, Loader2, Users } from 'lucide-react';
+import { Camera, Sparkles, Pencil, X, Check, Plus, Loader2, Users, MapPin } from 'lucide-react';
 import { getGravatarUrl } from '../lib/gravatar';
 import api from '../services/api';
 import { friendService } from '../services/social';
@@ -295,7 +295,7 @@ export default function ProfilePage() {
                 <button
                   onClick={() => setPhotoView('virtual')}
                   aria-label="Foto virtual"
-                  className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${photoView === 'virtual' ? 'bg-gradient-to-r from-[#FF6B6B] to-[#A855F7] text-white' : 'text-gray-400'}`}
+                  className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${photoView === 'virtual' ? 'bg-gradient-to-r from-[#4ECDC4] to-[#A855F7] text-white' : 'text-gray-400'}`}
                 >
                   <Sparkles className="h-4 w-4" />
                 </button>
@@ -393,7 +393,11 @@ export default function ProfilePage() {
                 <h1 className="text-2xl font-bold">
                   {username || 'Usuario'}, {getAgeFromDateOfBirth()}
                 </h1>
-                {location && <p className="text-sm text-gray-500">📍 {location}</p>}
+                {location && (
+                  <p className="text-sm text-gray-500 font-medium flex items-center gap-1 mt-1">
+                    <MapPin className="h-4 w-4" /> {location}
+                  </p>
+                )}
                 {bio && <p className="mt-3 text-sm leading-relaxed">{bio}</p>}
               </>
             )}
