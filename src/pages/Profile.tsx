@@ -8,16 +8,29 @@ import { PersonalityChart } from '../components/PersonalityChart';
 import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/avatar';
 import PhotoManagementModal from '../components/PhotoUploadModal';
 import { EMOJIS, INTERESTS } from '../lib/data';
-import { Camera, Sparkles, Pencil, X, Check, Plus, Loader2, Users, MapPin } from 'lucide-react';
+import {
+  Camera,
+  Sparkles,
+  Pencil,
+  X,
+  Check,
+  Plus,
+  Loader2,
+  Users,
+  MapPin,
+  Crosshair,
+} from 'lucide-react';
 import { getGravatarUrl } from '../lib/gravatar';
 import api from '../services/api';
 import { friendService } from '../services/social';
+import { getCurrentLocation, reverseGeocode } from '../services/geocoding';
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [geolocating, setGeolocating] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ username?: string; bio?: string }>({});
 
@@ -149,6 +162,20 @@ export default function ProfilePage() {
     const success = await updateProfile();
     if (success) {
       setEditing(false);
+    }
+  };
+
+  const handleDetectLocation = async () => {
+    setGeolocating(true);
+    setError('');
+    try {
+      const coords = await getCurrentLocation();
+      const city = await reverseGeocode(coords.lat, coords.lng);
+      setLocation(city);
+    } catch (err: any) {
+      setError(err.message || 'No se pudo obtener la ubicación');
+    } finally {
+      setGeolocating(false);
     }
   };
 
@@ -362,12 +389,27 @@ export default function ProfilePage() {
                     )}
                   </div>
                 </div>
-                <Input
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="h-11 rounded-lg"
-                  placeholder="Ubicación"
-                />{' '}
+                <div className="relative">
+                  <Input
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="h-11 rounded-lg pr-12"
+                    placeholder="Ubicación"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleDetectLocation}
+                    disabled={geolocating}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#FF6B6B] transition-colors disabled:opacity-50"
+                    title="Detectar ubicación actual"
+                  >
+                    {geolocating ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Crosshair className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>{' '}
                 <div>
                   <Textarea
                     value={bio}
