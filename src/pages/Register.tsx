@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { AuthBranding } from '../components/AuthBranding';
-import { Logo } from '../components/Logo';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import api from '../services/api';
+import { useAuth } from '@/context/AuthContext';
+import { AuthBranding } from '@/components/AuthBranding';
+import { Logo } from '@/components/Logo';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import api from '@/services/api';
 import { DatePicker } from '@/components/ui/DatePicker';
 
 export default function RegisterPage() {

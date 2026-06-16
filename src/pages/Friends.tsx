@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { friendService } from '@/services/social';
-import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/avatar';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { UserMinus, MessageCircle, Search, Loader2, ArrowLeft, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';

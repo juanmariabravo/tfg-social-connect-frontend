@@ -1,8 +1,8 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, CalendarHeart, MessageCircle, User, Bell, LogOut } from 'lucide-react';
-import { Logo } from '../Logo';
-import { useSocket } from '../../context/SocketContext';
-import { useAuth } from '../../context/AuthContext';
+import { Logo } from '@/components/Logo';
+import { useSocket } from '@/context/SocketContext';
+import { useAuth } from '@/context/AuthContext';
 import { useState, useEffect } from 'react';
 import { notificationService, chatService } from '@/services/social';
 

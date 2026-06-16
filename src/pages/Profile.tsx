@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Textarea } from '../components/ui/textarea';
-import { PersonalityChart } from '../components/PersonalityChart';
-import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/avatar';
-import PhotoManagementModal from '../components/PhotoUploadModal';
-import { EMOJIS, INTERESTS } from '../lib/data';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/textarea';
+import { PersonalityChart } from '@/components/PersonalityChart';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import PhotoManagementModal from '@/components/PhotoUploadModal';
+import { EMOJIS, INTERESTS } from '@/lib/data';
 import {
   Camera,
   Sparkles,
@@ -20,10 +20,10 @@ import {
   MapPin,
   Crosshair,
 } from 'lucide-react';
-import { getGravatarUrl } from '../lib/gravatar';
-import api from '../services/api';
-import { friendService } from '../services/social';
-import { getCurrentLocation, reverseGeocode } from '../services/geocoding';
+import { getGravatarUrl } from '@/lib/gravatar';
+import api from '@/services/api';
+import { friendService } from '@/services/social';
+import { getCurrentLocation, reverseGeocode } from '@/services/geocoding';
 
 export default function ProfilePage() {
   const { user } = useAuth();

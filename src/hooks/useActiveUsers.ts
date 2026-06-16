@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useSocket } from '../context/SocketContext';
+import { useSocket } from '@/context/SocketContext';
 
 export const useActiveUsers = (chatId?: string) => {
   const { activeUsers } = useSocket();

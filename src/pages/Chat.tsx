@@ -11,16 +11,16 @@ import {
   Smile,
   ImageIcon,
 } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Avatar, AvatarImage, AvatarFallback } from '../components/ui/avatar';
-import { chatService } from '../services/social';
-import { useAuth } from '../context/AuthContext';
-import { useSocket } from '../context/SocketContext';
-import { useActiveUsers } from '../hooks/useActiveUsers';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { chatService } from '@/services/social';
+import { useAuth } from '@/context/AuthContext';
+import { useSocket } from '@/context/SocketContext';
+import { useActiveUsers } from '@/hooks/useActiveUsers';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import NewChatModal from '../components/NewChatModal';
+import NewChatModal from '@/components/NewChatModal';
 import EmojiPicker from '@/components/ui/emoji-picker';
 
 interface Participant {
