@@ -166,7 +166,7 @@ export default function UserProfilePage() {
                   {connecting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : profile.friendshipStatus === 'pending' ? (
-                    'Solicitud enviada'
+                    'Solicitud pendiente'
                   ) : (
                     <>
                       <UserPlus className="h-4 w-4" /> Conectar

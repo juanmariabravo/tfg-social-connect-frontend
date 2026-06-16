@@ -487,10 +487,10 @@ export default function ProfilePage() {
 
       <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Personalidad</h2>
+          {/* <h2 className="text-lg font-semibold">Personalidad</h2>
           <Button variant="ghost" size="sm">
             Repetir test
-          </Button>
+          </Button> */}
         </div>
         <div className="mt-4">
           {traits.length > 0 ? (
