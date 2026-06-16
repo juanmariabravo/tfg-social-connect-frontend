@@ -101,17 +101,6 @@ export default function LoginPage() {
               </Button>
             </form>
           </div>
-          <p className="mt-6 text-center text-xs text-gray-500">
-            Al continuar aceptas los{' '}
-            <Link to="#" className="text-[#FF6B6B] hover:underline">
-              Términos
-            </Link>{' '}
-            y la{' '}
-            <Link to="#" className="text-[#FF6B6B] hover:underline">
-              Privacidad
-            </Link>
-            .
-          </p>
         </div>
       </div>
     </div>
