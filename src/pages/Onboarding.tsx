@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/textarea';
 import PhotoManagementModal from '@/components/PhotoUploadModal';
-import { Camera, Sparkles, Loader2, ChevronLeft } from 'lucide-react';
+import { Camera, Sparkles, Loader2, ChevronLeft, Crosshair } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/services/api';
 import { INTERESTS, EMOJIS, QUESTIONS } from '@/lib/data';
 import { PersonalityChart } from '@/components/PersonalityChart';
 import { getGravatarUrl } from '@/lib/gravatar';
+import { getCurrentLocation, reverseGeocode } from '@/services/geocoding';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [geolocating, setGeolocating] = useState(false);
   const [error, setError] = useState('');
 
   // Step 1: Profile State
@@ -78,6 +80,24 @@ export default function OnboardingPage() {
   }, [user]);
 
   // --- Step 1 Actions ---
+  const handleDetectLocation = async () => {
+    setGeolocating(true);
+    setError('');
+    try {
+      const coords = await getCurrentLocation();
+      const city = await reverseGeocode(coords.lat, coords.lng);
+      setLocation(city);
+      // Limpiar error de ubicación si existía
+      if (profileErrors.location) {
+        setProfileErrors((prev) => ({ ...prev, location: undefined }));
+      }
+    } catch (err: any) {
+      setError(err.message || 'No se pudo obtener la ubicación');
+    } finally {
+      setGeolocating(false);
+    }
+  };
+
   const validateProfile = (): boolean => {
     const newErrors: { name?: string; bio?: string; location?: string } = {};
     if (!userName.trim()) newErrors.name = 'El nombre es obligatorio';
@@ -284,12 +304,27 @@ export default function OnboardingPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Ubicación</label>
-                <Input
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="h-11"
-                  placeholder="Dónde vives o tu ciudad favorita"
-                />
+                <div className="relative">
+                  <Input
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="h-11 pr-12"
+                    placeholder="Dónde vives o tu ciudad favorita"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleDetectLocation}
+                    disabled={geolocating}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#FF6B6B] transition-colors disabled:opacity-50"
+                    title="Detectar ubicación actual"
+                  >
+                    {geolocating ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Crosshair className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
                 {profileErrors.location && (
                   <p className="text-red-500 text-xs mt-1">{profileErrors.location}</p>
                 )}
