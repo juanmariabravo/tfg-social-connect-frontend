@@ -1,5 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
+import { useParams, useNavigate, useOutletContext, Link } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -470,18 +470,33 @@ export default function ChatPage() {
                     <span className="text-lg">{currentChat?.emojiIcon}</span>
                   </div>
                 ) : (
-                  <Avatar className="h-10 w-10 rounded-xl border border-gray-100">
-                    <AvatarImage src={currentChat ? getChatAvatar(currentChat) : undefined} />
-                    <AvatarFallback className="gradient-soft text-primary font-bold text-xs">
-                      {currentChat ? getChatName(currentChat).charAt(0) : '?'}
-                    </AvatarFallback>
-                  </Avatar>
+                  <Link
+                    to={`/u/${currentChat?.participants.find((p) => p._id !== user?._id)?._id}`}
+                  >
+                    <Avatar className="h-10 w-10 rounded-xl border border-gray-100 hover:opacity-80 transition-opacity cursor-pointer">
+                      <AvatarImage src={currentChat ? getChatAvatar(currentChat) : undefined} />
+                      <AvatarFallback className="gradient-soft text-primary font-bold text-xs">
+                        {currentChat ? getChatName(currentChat).charAt(0) : '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
                 )}
 
                 <div className="min-w-0">
-                  <p className="font-bold text-sm truncate text-gray-900">
-                    {currentChat ? getChatName(currentChat) : 'Cargando...'}
-                  </p>
+                  {currentChat?.isGroup ? (
+                    <p className="font-bold text-sm truncate text-gray-900">
+                      {currentChat ? getChatName(currentChat) : 'Cargando...'}
+                    </p>
+                  ) : (
+                    <Link
+                      to={`/u/${currentChat?.participants.find((p) => p._id !== user?._id)?._id}`}
+                      className="hover:underline"
+                    >
+                      <p className="font-bold text-sm truncate text-gray-900">
+                        {currentChat ? getChatName(currentChat) : 'Cargando...'}
+                      </p>
+                    </Link>
+                  )}
                   <p className="text-[10px] text-green-500 font-bold uppercase tracking-wider">
                     {activeChatSubtitle}
                   </p>
@@ -538,9 +553,11 @@ export default function ChatPage() {
                         )} */}
                         <div className="flex flex-col max-w-[75%]">
                           {!isMe && currentChat?.isGroup && (
-                            <span className="text-[9px] font-bold text-gray-400 ml-2 mb-0.5">
-                              {m.sender.username.split(' ')[0]}
-                            </span>
+                            <Link to={`/u/${m.sender._id}`} className="hover:underline">
+                              <span className="text-[9px] font-bold text-gray-400 ml-2 mb-0.5">
+                                {m.sender.username.split(' ')[0]}
+                              </span>
+                            </Link>
                           )}
                           <div
                             className={`px-4 py-2.5 text-sm shadow-subtle ${

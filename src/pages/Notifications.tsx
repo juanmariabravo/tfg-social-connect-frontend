@@ -158,7 +158,11 @@ export default function NotificationsPage() {
     if (notification.type.startsWith('plan_')) {
       navigate('/plans/' + notification.referenceId);
     } else if (notification.type.startsWith('friend_')) {
-      navigate('/profile'); // A la pestaña de amigos
+      if (notification.sender?._id) {
+        navigate(`/u/${notification.sender._id}`);
+      } else {
+        navigate('/friends');
+      }
     }
   };
 

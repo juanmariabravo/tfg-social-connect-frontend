@@ -4,6 +4,7 @@ import { Sparkles, Camera, X, Heart, MapPin, Loader2, UserPlus } from 'lucide-re
 import { profileService, friendService } from '@/services/social';
 import { toast } from 'sonner';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 interface ProfileData {
   _id: string;
@@ -125,8 +126,10 @@ const SwipeableCard = memo(function SwipeableCard({
 
         {/* Información del Perfil superpuesta */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white pointer-events-none select-none">
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-2xl font-bold">{profile.displayName || profile.user.username}</h2>
+          <div className="flex items-baseline gap-2 pointer-events-auto">
+            <Link to={`/u/${profile.userId}`} className="hover:underline">
+              <h2 className="text-2xl font-bold">{profile.displayName || profile.user.username}</h2>
+            </Link>
             <span className="text-lg opacity-90">{calculateAge(profile.user.dateOfBirth)}</span>
           </div>
           <p className="text-sm opacity-80 flex items-center gap-1 mt-1">
