@@ -1,8 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Fondo -->
-  <rect width="512" height="512" rx="140" fill="#F77B7B"/>
+  <rect width="512" height="512" rx="80" fill="#F77B7B"/>
 
-  <!-- Icono -->
   <g transform="translate(64 64) scale(16)"
      fill="none"
      stroke="#FFFFFF"
