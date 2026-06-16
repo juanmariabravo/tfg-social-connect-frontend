@@ -138,7 +138,7 @@ export default function PhotoManagementModal({
   const generateRandomAvatar = () => {
     const randomSeed =
       Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomSeed}`;
+    const avatarUrl = `https://api.dicebear.com/7.x/thumbs/svg?seed=${randomSeed}`;
 
     // Validar que la imagen cargue correctamente
     const img = new Image();

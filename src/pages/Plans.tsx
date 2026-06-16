@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
@@ -276,15 +276,23 @@ export default function PlansPage() {
             >
               <div className="p-5">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-11 w-11">
-                    <AvatarImage src={author.avatar} />
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      {author.username ? author.username.substring(0, 2).toUpperCase() : '?'}
-                    </AvatarFallback>
-                  </Avatar>
+                  <Link to={`/u/${p.creator._id}`}>
+                    <Avatar className="h-11 w-11 hover:scale-105 transition-transform cursor-pointer">
+                      <AvatarImage src={author.avatar} />
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {author.username ? author.username.substring(0, 2).toUpperCase() : '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm">
-                      <span className="font-semibold">{author.username}</span> propone un plan
+                      <Link
+                        to={`/u/${p.creator._id}`}
+                        className="font-semibold hover:underline text-gray-900"
+                      >
+                        {author.username}
+                      </Link>{' '}
+                      propone un plan
                     </p>
                     <p className="text-xs text-muted-foreground">{formatDate(p.createdAt)}</p>
                   </div>
@@ -344,12 +352,14 @@ export default function PlansPage() {
                     <div className="ml-auto flex -space-x-2">
                       {p.attendees.slice(0, 5).map((a) => (
                         <Tooltip key={a._id} content={a.username}>
-                          <Avatar className="h-6 w-6 border-2 border-white">
-                            <AvatarImage src={a.profile?.avatar} />
-                            <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
-                              {a.username.substring(0, 2).toUpperCase() || '?'}
-                            </AvatarFallback>
-                          </Avatar>
+                          <Link to={`/u/${a._id}`}>
+                            <Avatar className="h-6 w-6 border-2 border-white hover:scale-110 transition-transform cursor-pointer relative z-10">
+                              <AvatarImage src={a.profile?.avatar} />
+                              <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
+                                {a.username.substring(0, 2).toUpperCase() || '?'}
+                              </AvatarFallback>
+                            </Avatar>
+                          </Link>
                         </Tooltip>
                       ))}
                       {p.attendees.length > 5 && (
@@ -378,12 +388,14 @@ export default function PlansPage() {
                           isMe ? 'ml-auto flex-row-reverse' : 'mr-auto'
                         )}
                       >
-                        <Avatar className="h-6 w-6 shrink-0 mb-1">
-                          <AvatarImage src={authorAvatar} />
-                          <AvatarFallback className="bg-primary/10 text-[8px] font-medium text-primary">
-                            {authorName ? authorName.substring(0, 2).toUpperCase() : '?'}
-                          </AvatarFallback>
-                        </Avatar>
+                        <Link to={`/u/${c.user._id}`}>
+                          <Avatar className="h-6 w-6 shrink-0 mb-1 hover:opacity-80 transition-opacity cursor-pointer">
+                            <AvatarImage src={authorAvatar} />
+                            <AvatarFallback className="bg-primary/10 text-[8px] font-medium text-primary">
+                              {authorName ? authorName.substring(0, 2).toUpperCase() : '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Link>
                         <div
                           className={cn(
                             'relative px-3 py-2 text-sm shadow-subtle break-words',
@@ -393,7 +405,11 @@ export default function PlansPage() {
                           )}
                         >
                           {!isMe && (
-                            <p className="text-[10px] font-bold opacity-70 mb-0.5">{authorName}</p>
+                            <Link to={`/u/${c.user._id}`} className="hover:underline">
+                              <p className="text-[10px] font-bold opacity-70 mb-0.5">
+                                {authorName}
+                              </p>
+                            </Link>
                           )}
                           <p className="leading-tight">{c.text}</p>
                         </div>

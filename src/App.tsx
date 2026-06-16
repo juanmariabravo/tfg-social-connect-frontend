@@ -8,6 +8,7 @@ import ProfilePage from './pages/Profile';
 import OnboardingPage from './pages/Onboarding';
 import HomePage from './pages/Home';
 import ExplorePage from './pages/Explore';
+import UserProfilePage from './pages/UserProfile';
 import PlansPage from './pages/Plans';
 import ChatPage from './pages/Chat';
 import NotificationsPage from './pages/Notifications';
@@ -90,6 +91,7 @@ export default function App() {
       >
         <Route path="/home" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/u/:id" element={<UserProfilePage />} />
         <Route path="/plans" element={<PlansPage />} />
         <Route path="/plans/:id" element={<PlansPage />} />
         <Route path="/chat" element={<ChatPage />} />

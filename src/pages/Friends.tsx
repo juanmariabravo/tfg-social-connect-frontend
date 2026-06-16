@@ -91,18 +91,22 @@ export default function FriendsPage() {
               className="flex items-center justify-between p-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all group"
             >
               <div className="flex items-center gap-4">
-                <Avatar className="h-14 w-14 border-2 border-gray-50 shadow-sm">
-                  <AvatarImage
-                    src={friend.profile?.avatar || friend.profile?.photo}
-                    alt={friend.username}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="bg-gradient-to-br from-[#FF6B6B] to-[#A855F7] text-white text-lg font-bold">
-                    {friend.username.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <Link to={`/u/${friend._id}`}>
+                  <Avatar className="h-14 w-14 border-2 border-gray-50 shadow-sm hover:scale-105 transition-transform cursor-pointer">
+                    <AvatarImage
+                      src={friend.profile?.avatar || friend.profile?.photo}
+                      alt={friend.username}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="bg-gradient-to-br from-[#FF6B6B] to-[#A855F7] text-white text-lg font-bold">
+                      {friend.username.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
                 <div>
-                  <h3 className="font-bold text-gray-900">@{friend.username}</h3>
+                  <Link to={`/u/${friend._id}`} className="hover:underline">
+                    <h3 className="font-bold text-gray-900">@{friend.username}</h3>
+                  </Link>
                   <div className="flex items-center gap-2 mt-0.5">
                     <p className="text-xs text-gray-700 font-medium tracking-wider">
                       {friend.email}
