@@ -88,7 +88,7 @@ export default function OnboardingPage() {
 
     if (!bio.trim()) newErrors.bio = 'La biografía es obligatoria';
     else if (bio.length > 500) newErrors.bio = 'Máximo 500 caracteres';
-    console.log('Profile validation errors:', newErrors);
+    // console.log('Profile validation errors:', newErrors);
     setProfileErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
