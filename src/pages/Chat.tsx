@@ -83,13 +83,15 @@ export default function ChatPage() {
   const messagesContainerRef = useRef<HTMLDivElement>(null); // para scroll infinito y mantener la posición al cargar más mensajes
   const prevScrollHeight = useRef<number | null>(null);
   const currentChatRef = useRef<string | null>(null);
+  const isCreatingChatRef = useRef(false);
 
   // Manejar creación de chat desde query param (ej: desde lista de amigos)
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     const userIdParam = query.get('userId');
 
-    if (userIdParam) {
+    if (userIdParam && !isCreatingChatRef.current) {
+      isCreatingChatRef.current = true;
       const createOrOpenChat = async () => {
         try {
           const { data } = await chatService.createChat({
@@ -101,6 +103,8 @@ export default function ChatPage() {
         } catch (error) {
           console.error('Error opening chat from query param:', error);
           navigate('/chat', { replace: true });
+        } finally {
+          isCreatingChatRef.current = false;
         }
       };
       createOrOpenChat();
