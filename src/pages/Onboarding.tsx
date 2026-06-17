@@ -191,7 +191,7 @@ export default function OnboardingPage() {
         personality: personalityData,
         onboardingCompleted: true,
       });
-      navigate('/profile');
+      navigate('/home');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Error al completar onboarding');
     } finally {
