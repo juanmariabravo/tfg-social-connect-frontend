@@ -93,6 +93,16 @@ Esto abre el panel de Playwright Test UI, desde el que puedes:
 
 Necesitas tener el frontend preparado y, si el flujo depende del backend, también el servidor backend levantado antes de abrir la UI.
 
+#### Vídeos de testing
+
+Los vídeos grabados por Playwright están disponibles en [tests/e2e/videos/](tests/e2e/videos/) y sirven como referencia visual para reproducir los flujos de prueba:
+
+-   [auth-onboarding.test.webm](tests/e2e/videos/auth-onboarding.test.webm)
+-   [explore-profiles.test.webm](tests/e2e/videos/explore-profiles.test.webm)
+-   [plans.test.webm](tests/e2e/videos/plans.test.webm)
+
+Cada vídeo corresponde a una de las specs E2E y puedes abrirlo para seguir el recorrido exacto de la ejecución o comparar un fallo con el comportamiento esperado.
+
 ## Estructura de Carpetas Principal
 
 -   `src/components/` - Componentes reutilizables de UI (botones, tarjetas, modales, etc.) y layouts compartidos.
